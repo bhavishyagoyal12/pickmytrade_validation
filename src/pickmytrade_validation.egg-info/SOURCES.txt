@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+src/pickmytrade_validation/__init__.py
+src/pickmytrade_validation/broker_capabilities.py
+src/pickmytrade_validation/validator.py
+src/pickmytrade_validation.egg-info/PKG-INFO
+src/pickmytrade_validation.egg-info/SOURCES.txt
+src/pickmytrade_validation.egg-info/dependency_links.txt
+src/pickmytrade_validation.egg-info/top_level.txt
+tests/test_validator.py

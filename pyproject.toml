@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pickmytrade-validation"
+version = "0.1.0"
+authors = [
+  { name="Bhavishya Goyal", email="bhavishya@example.com" },
+]
+description = "A strictly typed alert JSON validation and description engine for PickMyTrade."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/bhavishyagoyal12/pickmytrade_validation"
+
+[tool.setuptools.packages.find]
+where = ["src"]
