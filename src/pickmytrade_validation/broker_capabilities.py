@@ -107,7 +107,7 @@ BROKER_CAPABILITIES = {
         "supports_options":        False,
         "supports_update_tp_sl":   False,
         "supports_advance_tp_sl":  False,
-        "allowed_inst_types":      ["CRYPTO", "FUTURES"],
+        "allowed_inst_types":      ["CRYPTO", "FUTURE", "FUTURES"],
     },
     "BYBIT": {
         "supports_trailing":       True,
@@ -118,7 +118,7 @@ BROKER_CAPABILITIES = {
         "supports_options":        False,
         "supports_update_tp_sl":   False,
         "supports_advance_tp_sl":  False,
-        "allowed_inst_types":      ["CRYPTO", "FUTURES"],
+        "allowed_inst_types":      ["CRYPTO", "FUTURE", "FUTURES"],
     },
     "MATCHTRADER": {
         "supports_trailing":       True,
