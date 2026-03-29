@@ -55,8 +55,12 @@ class TestBrokerSpecificEnforcement:
         assert r["error"] is True
         assert "strictly only supports the following instrument types: FUT" in str(r["invalid_fields"])
 
-    def test_binance_crypto_future(self):
+    def test_binance_crypto_futures(self):
         r = validate_and_describe_alert_json({**MINIMAL_BUY, "platform": "BINANCE", "inst_type": "CRYPTO"})
+        assert r["error"] is False
+
+    def test_bybit_valid_futures(self):
+        r = validate_and_describe_alert_json({**MINIMAL_BUY, "platform": "BYBIT", "inst_type": "FUTURES"})
         assert r["error"] is False
 
 class TestPlaceholders:
