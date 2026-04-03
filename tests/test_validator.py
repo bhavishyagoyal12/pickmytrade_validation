@@ -94,4 +94,8 @@ class TestDescriptionOutput:
 
     def test_tradovate_pyramid_description(self):
         r = validate_and_describe_alert_json({**MINIMAL_BUY, "platform": "TRADOVATE", "pyramid": True})
-        assert "multiple buy/sell signals will generate multiple buy/sell trades with closing existing ones" in r["description"]
+        assert "Reverse Order Close: False -> Existing Position (Same Signal): It will not close the trade" in r["description"]
+
+    def test_tradovate_reverse_and_pyramid(self):
+        r = validate_and_describe_alert_json({**MINIMAL_BUY, "platform": "TRADOVATE", "pyramid": True, "reverse_order_close": True})
+        assert "Reverse Order Close: True, Pyramid: True -> Existing Position (Same Signal): It will not be closed" in r["description"]

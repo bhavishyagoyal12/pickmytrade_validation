@@ -859,13 +859,18 @@ def validate_and_describe_alert_json(d: dict, raw_payload: str = None, allow_pla
     extras = []
     if len(multiple_accs) > 0:
         extras.append(f"sent to {len(multiple_accs)} accounts simultaneously")
-    if pyramid:
-        if raw_platform == 'TRADOVATE':
-            extras.append("multiple buy/sell signals will generate multiple buy/sell trades with closing existing ones")
+    if raw_platform == 'TRADOVATE':
+        if reverse_close and not pyramid:
+            extras.append("Reverse Order Close: True, Pyramid: False -> Existing Position (Same Signal): It will be closed | Existing Position (Opposite Signal): It will be closed | New Signal: A new trade opens if not a close signal")
+        elif reverse_close and pyramid:
+            extras.append("Reverse Order Close: True, Pyramid: True -> Existing Position (Same Signal): It will not be closed | Existing Position (Opposite Signal): It will be closed | New Signal: A new trade opens if not a close signal")
         else:
+            extras.append("Reverse Order Close: False -> Existing Position (Same Signal): It will not close the trade | Existing Position (Opposite Signal): It will not close the trade | New Signal: A new trade opens if not a close signal")
+    else:
+        if pyramid:
             extras.append("pyramid entries allowed")
-    if reverse_close:
-        extras.append("reverse order close enabled (opposite position closed first)")
+        if reverse_close:
+            extras.append("reverse order close enabled (opposite position closed first)")
     if not dup_allow:
         extras.append("duplicate positions blocked")
     if is_positive(breakeven):
