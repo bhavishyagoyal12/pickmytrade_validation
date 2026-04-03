@@ -29,7 +29,7 @@ except ImportError:
     )
 
 
-def validate_and_describe_alert_json(d: dict, raw_payload: str = None) -> dict:
+def validate_and_describe_alert_json(d: dict, raw_payload: str = None, allow_placeholders: bool = True) -> dict:
     """
     Validates required fields in an alert JSON and returns a human-readable
     description of what the order will do.
@@ -46,6 +46,8 @@ def validate_and_describe_alert_json(d: dict, raw_payload: str = None) -> dict:
                 "description": "Invalid JSON format: There are extra characters outside the JSON object. Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
             }
     def is_placeholder(val):
+        if not allow_placeholders:
+            return False
         return isinstance(val, str) and "{{" in val and "}}" in val
 
     # 1. Pre-scan for malformed placeholders and strict field allowance
@@ -81,6 +83,8 @@ def validate_and_describe_alert_json(d: dict, raw_payload: str = None) -> dict:
                 placeholder_errors.append(f"{path}: contains '}}}}' but missing '{{{{'")
             elif (has_single_open or has_single_close) and not (has_double_open and has_double_close):
                 placeholder_errors.append(f"{path}: placeholders must use double curly braces {{{{}}}}")
+            elif has_double_open and has_double_close and not allow_placeholders:
+                placeholder_errors.append(f"{path}: Placeholders are disabled. Field '{k_name}' must be an explicit value.")
             elif is_placeholder(val):
                 normalized_val = val.strip().lower()
 

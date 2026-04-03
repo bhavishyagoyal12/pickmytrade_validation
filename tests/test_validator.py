@@ -68,6 +68,25 @@ class TestPlaceholders:
         r = validate_and_describe_alert_json({**MINIMAL_BUY, "quantity": "{{strategy.market_position_size}}", "price": "{{close}}", "order_type": "LMT"})
         assert r["error"] is False
 
+    def test_placeholders_disabled_rejects_templates(self):
+        r = validate_and_describe_alert_json(
+            {**MINIMAL_BUY, "quantity": "{{strategy.market_position_size}}", "price": "{{close}}", "order_type": "LMT"},
+            allow_placeholders=False
+        )
+        assert r["error"] is True
+        err_str = str(r["invalid_fields"])
+        # Should fail placeholder syntax explicitly
+        assert "Placeholders are disabled. Field 'quantity' must be an explicit value." in err_str
+        assert "Placeholders are disabled. Field 'price' must be an explicit value." in err_str
+
+    def test_placeholders_enabled_accepts_templates(self):
+        # Even explicitly testing True behavior
+        r = validate_and_describe_alert_json(
+            {**MINIMAL_BUY, "quantity": "{{strategy.market_position_size}}", "price": "{{close}}", "order_type": "LMT"},
+            allow_placeholders=True
+        )
+        assert r["error"] is False
+
 class TestDescriptionOutput:
     def test_basic_buy_description(self):
         r = validate_and_describe_alert_json(MINIMAL_BUY)
