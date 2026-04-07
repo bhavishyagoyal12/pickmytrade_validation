@@ -274,6 +274,8 @@ def validate_and_describe_alert_json(d: dict, raw_payload: str = None, allow_pla
 
     # Options-specific required fields (only when inst_type = OPT)
     inst_type = str(d.get("inst_type", "") or "").upper()
+    if str(d.get("platform", "") or "").upper() == "TRADOVATE" and not inst_type:
+        inst_type = "FUT"
     if inst_type == "OPT":
         if not str(d.get("option_type", "") or "").strip():
             missing.append("option_type (expected: call / put)")

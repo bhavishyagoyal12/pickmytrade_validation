@@ -51,7 +51,7 @@ BROKER_CAPABILITIES = {
         "supports_options":        True,
         "supports_update_tp_sl":   True,
         "supports_advance_tp_sl":  True,
-        "allowed_inst_types":      ["FUT", "FOP"],
+        "allowed_inst_types":      ["FUT"],
     },
     "TRADIER": {
         "supports_trailing":       False,
