@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "pickmytrade-validation"
 version = "0.1.0"
 authors = [
-  { name="Bhavishya Goyal", email="bhavishya@example.com" },
+  { name="PickMyTrade", email="support@pickmytrade.com" },
 ]
 description = "A strictly typed alert JSON validation and description engine for PickMyTrade."
 readme = "README.md"
@@ -18,7 +18,9 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/bhavishyagoyal12/pickmytrade_validation"
+Homepage = "https://pickmytrade.trade"
+Repository = "https://github.com/bhavishyagoyal12/pickmytrade_validation"
+Documentation = "https://docs.pickmytrade.trade"
 
 [tool.setuptools.packages.find]
 where = ["src"]
