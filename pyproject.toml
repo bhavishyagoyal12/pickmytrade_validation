@@ -8,19 +8,49 @@ version = "0.1.0"
 authors = [
   { name="PickMyTrade", email="support@pickmytrade.com" },
 ]
-description = "A strictly typed alert JSON validation and description engine for PickMyTrade."
+description = "Validate TradingView webhook alert JSON for PickMyTrade — supports Rithmic, Tradovate, Interactive Brokers, TradeStation, Binance, Bybit, and more."
 readme = "README.md"
 requires-python = ">=3.8"
+license = "MIT"
+keywords = [
+    "tradingview",
+    "webhook",
+    "trading",
+    "alert-validation",
+    "rithmic",
+    "tradovate",
+    "interactive-brokers",
+    "tradestation",
+    "binance",
+    "bybit",
+    "futures",
+    "options",
+    "crypto",
+    "forex",
+    "pickmytrade",
+]
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = []
 
 [project.urls]
 Homepage = "https://pickmytrade.trade"
+"Website" = "https://pickmytrade.io"
 Repository = "https://github.com/bhavishyagoyal12/pickmytrade_validation"
 Documentation = "https://docs.pickmytrade.trade"
+"Documentation (mirror)" = "https://docs.pickmytrade.io"
 
 [tool.setuptools.packages.find]
 where = ["src"]
