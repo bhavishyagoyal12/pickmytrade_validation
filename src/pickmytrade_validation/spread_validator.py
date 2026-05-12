@@ -248,6 +248,19 @@ def _validate_explicit_legs(strategy: str, payload: dict) -> None:
                 f"Field 'legs[{idx}].ratio' must be an integer >= 1, got: {ratio!r}"
             )
 
+    # Strategy-specific structural ratio checks. A butterfly is defined by
+    # the N-2N-N ratio: without the doubled middle leg the trade is a bull
+    # spread + naked call, not a butterfly. Silently accepting 1-1-1 would
+    # route a wrong-shape order to the broker.
+    if strategy == "butterfly" and len(legs) == 3:
+        r0, r1, r2 = legs[0]["ratio"], legs[1]["ratio"], legs[2]["ratio"]
+        if r0 != r2 or r1 != 2 * r0:
+            raise SpreadValidationError(
+                f"Strategy 'butterfly' requires N-2N-N ratio "
+                f"(outer:middle:outer = 1:2:1 or 2:4:2 etc.), "
+                f"got {r0}-{r1}-{r2}"
+            )
+
 
 def _validate_pricing(pricing) -> None:
     if not isinstance(pricing, dict):

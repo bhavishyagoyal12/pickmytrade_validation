@@ -189,6 +189,48 @@ class TestExplicitLegs:
             validate_spread_payload(payload)
 
 
+class TestButterflyRatio:
+    """Butterfly is defined by the N-2N-N ratio. Without the doubled middle
+    leg the trade is a bull spread + naked call, not a butterfly."""
+
+    def _payload(self, ratios):
+        return {
+            "token": "test-token",
+            "broker": "IB",
+            "strategy": "butterfly",
+            "underlying": "SPY",
+            "side": "buy",
+            "expiration": {"mode": "date", "date": "2026-06-20"},
+            "legs_mode": "explicit",
+            "legs": [
+                {"side": "buy",  "right": "call", "strike": 480, "ratio": ratios[0]},
+                {"side": "sell", "right": "call", "strike": 490, "ratio": ratios[1]},
+                {"side": "buy",  "right": "call", "strike": 500, "ratio": ratios[2]},
+            ],
+            "quantity": 1,
+            "pricing": {"mode": "manual", "limit_price": 1.00},
+            "manage": "tasty_default",
+        }
+
+    def test_butterfly_1_2_1_passes(self):
+        validate_spread_payload(self._payload((1, 2, 1)))
+
+    def test_butterfly_2_4_2_passes(self):
+        validate_spread_payload(self._payload((2, 4, 2)))
+
+    def test_butterfly_1_1_1_rejected(self):
+        with pytest.raises(SpreadValidationError, match="N-2N-N"):
+            validate_spread_payload(self._payload((1, 1, 1)))
+
+    def test_butterfly_1_3_1_rejected(self):
+        with pytest.raises(SpreadValidationError, match="N-2N-N"):
+            validate_spread_payload(self._payload((1, 3, 1)))
+
+    def test_butterfly_asymmetric_outer_ratios_rejected(self):
+        with pytest.raises(SpreadValidationError, match="N-2N-N"):
+            validate_spread_payload(self._payload((1, 2, 2)))
+
+
 class TestRequiredTopLevelFields:
     @pytest.mark.parametrize("missing", [
         "token", "broker", "strategy", "underlying", "side",
