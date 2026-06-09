@@ -65,7 +65,7 @@ BROKER_CAPABILITIES = {
         "supports_trail_freq":          True,
         "supports_breakeven":           True,
         "supports_options":             True,
-        "supports_update_tp_sl":        True,
+        "supports_update_tp_sl":        False,
         "supports_advance_tp_sl":       True,
         "supports_spreads":             False,
         "supported_spread_strategies":  [],

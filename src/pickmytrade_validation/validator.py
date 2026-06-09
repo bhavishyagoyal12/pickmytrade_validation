@@ -130,9 +130,21 @@ def validate_and_describe_alert_json(d: dict, raw_payload: str = None, allow_pla
     # 0. Strict Type Checks
     # ------------------------------------------------------------------ #
     type_errors = []
-    STRING_FIELDS = {"token", "symbol", "platform", "data", "order_type", "inst_type", "option_type", "expiry_date", "account_id", "connection_name", "date"}
-    NUMERIC_FIELDS = {"quantity", "risk_percentage", "price", "sl", "dollar_sl", "percentage_sl", "tp", "dollar_tp", "percentage_tp", "trail", "trail_stop", "trail_trigger", "breakeven", "order_strike"}
-    BOOL_FIELDS = {"update_tp", "update_sl", "pyramid", "duplicate_position_allow", "reverse_close_enable"}
+    STRING_FIELDS = {
+        "token", "symbol", "platform", "data", "order_type", "inst_type",
+        "option_type", "expiry_date", "account_id", "connection_name", "date",
+        "strategy_name", "tif"
+    }
+    NUMERIC_FIELDS = {
+        "quantity", "risk_percentage", "price", "sl", "dollar_sl", "percentage_sl",
+        "tp", "dollar_tp", "percentage_tp", "trail", "trail_stop", "trail_trigger",
+        "breakeven", "order_strike", "gtd_in_second", "stp_limit_stp_price",
+        "trail_freq", "breakeven_offset", "quantity_multiplier"
+    }
+    BOOL_FIELDS = {
+        "update_tp", "update_sl", "pyramid", "duplicate_position_allow",
+        "reverse_close_enable", "same_direction_ignore", "reverse_order_close"
+    }
 
     def validate_types(obj_dict, prefix=""):
         for k, v in obj_dict.items():
