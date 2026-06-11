@@ -64,13 +64,11 @@ BROKER_CAPABILITIES = {
         "supports_trail_trigger":       True,
         "supports_trail_freq":          True,
         "supports_breakeven":           True,
-        "supports_options":             True,
         "supports_update_tp_sl":        False,
         "supports_advance_tp_sl":       True,
-        "supports_spreads":             False,
-        "supported_spread_strategies":  [],
-        "max_spread_legs":              0,
-        "allowed_inst_types":           ["FUT"],
+        "supports_update_tp":True,
+        "supports_update_sl": True,
+
     },
     "TRADIER": {
         "supports_trailing":            False,
