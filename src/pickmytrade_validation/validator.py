@@ -55,13 +55,11 @@ def validate_and_describe_rithmic_alert_json(d: dict, raw_payload: str = None, a
             return msg
 
         ALL_FIELDS = {"strategy_name": "str","symbol": "str","date": "str","data": "str",
-	"quantity": "int","risk_percentage": "int","price": "float","gtd_in_second": "int",
-	"stp_limit_stp_price": "float",	"tp": "float",	"percentage_tp": "float",
-	"dollar_tp": "float",	"sl": "float",	"percentage_sl": "float",	"dollar_sl": "float",	"trail": "float",
-	"trail_stop": "float",	"trail_trigger": "float",	"trail_freq": "float",	"update_tp": "bool","update_sl": "bool",	"breakeven": "float",
-	"breakeven_offset": "float",	"token": "str",	"pyramid": "bool",	"same_direction_ignore": "bool",	"reverse_order_close": "bool",	"order_type": "str",
-      "advance_tp_sl": "list",
-	"multiple_accounts": "list"
+	"quantity": "int","risk_percentage": "int","price": "float",
+	"tp": "float",	"percentage_tp": "float",
+	"dollar_tp": "float",	"sl": "float",	"percentage_sl": "float",	"dollar_sl": "float",	"breakeven": "float",
+	"breakeven_offset": "float",	"token": "str",	"reverse_order_close": "bool",	"order_type": "str",
+      "advance_tp_sl": "list","multiple_accounts": "list"
 }
         ADVANCE_TP_SL_FIELDS = {"quantity": "int","tp": "float","percentage_tp": "float",
             "dollar_tp": "float", "sl": "float", "percentage_sl": "float",
@@ -98,18 +96,15 @@ def validate_and_describe_ib_alert_json(d: dict, raw_payload: str = None, allow_
             return msg
 
         ALL_FIELDS = {"strategy_name": "str","symbol": "str","date": "str","data": "str",
-	"quantity": "int","risk_percentage": "int","price": "float","gtd_in_second": "int",
-	"stp_limit_stp_price": "float",	"tp": "float",	"percentage_tp": "float",
-	"dollar_tp": "float",	"sl": "float",	"percentage_sl": "float",	"dollar_sl": "float",	"trail": "float",
-	"trail_stop": "float",	"trail_trigger": "float",	"trail_freq": "float",	"update_tp": "bool","update_sl": "bool",	"breakeven": "float",
-	"breakeven_offset": "float",	"token": "str",	"pyramid": "bool",	"same_direction_ignore": "bool",	"reverse_order_close": "bool",	"order_type": "str",
+	"quantity": "int","risk_percentage": "int","price": "float",	"tp": "float",	"percentage_tp": "float",
+	"dollar_tp": "float",	"sl": "float",	"percentage_sl": "float",	"dollar_sl": "float",
+	"breakeven_offset": "float",	"token": "str",	"reverse_order_close": "bool",	"order_type": "str","option_type": "str",
       "advance_tp_sl": "list",
 	"multiple_accounts": "list"
 }
         ADVANCE_TP_SL_FIELDS = {"quantity": "int","tp": "float","percentage_tp": "float",
             "dollar_tp": "float", "sl": "float", "percentage_sl": "float",
-            "dollar_sl": "float", "breakeven": "float","breakeven_offset": "float", "trail": "float", "trail_stop": "float", "trail_trigger": "float",
-            "trail_freq": "float"
+            "dollar_sl": "float"
         }
         MULTIPLE_ACCOUNT_FIELDS = {
             "token": "str", "account_id": "str", "risk_percentage": "float","quantity_multiplier": "float"
@@ -158,8 +153,7 @@ def validate_and_describe_tradestation_alert_json(d: dict, raw_payload: str = No
 }
         ADVANCE_TP_SL_FIELDS = {"quantity": "int","tp": "float","percentage_tp": "float",
             "dollar_tp": "float", "sl": "float", "percentage_sl": "float",
-            "dollar_sl": "float", "breakeven": "float","breakeven_offset": "float", "trail": "float", "trail_stop": "float", "trail_trigger": "float",
-            "trail_freq": "float"
+            "dollar_sl": "float"
         }
         MULTIPLE_ACCOUNT_FIELDS = {
             "token": "str", "account_id": "str","connection_name": "str", "risk_percentage": "float","quantity_multiplier": "float"
@@ -177,7 +171,7 @@ def validate_and_describe_tradestation_alert_json(d: dict, raw_payload: str = No
         if error:
             return { "error": True,"missing_fields": [], "invalid_fields": error,  "warnings": [], "description": ""
         }
-        error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="IB")
+        error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="TRADESTATION")
         if error:
             return {
             "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
@@ -187,6 +181,208 @@ def validate_and_describe_tradestation_alert_json(d: dict, raw_payload: str = No
         pass
     return { "error": False, "missing_fields": [],"invalid_fields": [], "warnings": [],"description": ""
     }
+
+def validate_and_describe_tradelocker_alert_json(d: dict, raw_payload: str = None, allow_placeholders: bool = True) -> dict:
+    try:
+        # checking first json format is ok or not
+        error,msg = check_raw_payload(d,raw_payload,broker="TRADELOCKER")
+        if error:
+            return msg
+
+        ALL_FIELDS = {"strategy_name": "str","symbol": "str","date": "str","data": "str",
+	"quantity": "int","risk_percentage": "int","price": "float","gtd_in_second": "int",
+	"stp_limit_stp_price": "float",	"tp": "float",	"percentage_tp": "float",
+	"dollar_tp": "float",	"sl": "float",	"percentage_sl": "float",	"dollar_sl": "float",	"trail": "float",
+	"trail_stop": "float",	"trail_trigger": "float",	"trail_freq": "float",	"breakeven": "float",
+	"breakeven_offset": "float",	"token": "str","reverse_order_close": "bool",	"order_type": "str","inst_type":"str",
+     "option_type": "str", "expiry_date": "str",   "order_strike": "float",  "multiple_accounts": "list"
+}
+        ADVANCE_TP_SL_FIELDS = {"quantity": "int","tp": "float","percentage_tp": "float",
+            "dollar_tp": "float", "sl": "float", "percentage_sl": "float",
+            "dollar_sl": "float"
+        }
+        MULTIPLE_ACCOUNT_FIELDS = {
+            "token": "str", "account_id": "str","connection_name": "str", "risk_percentage": "float","quantity_multiplier": "float"
+        }
+        error = checking_ins_type(d, broker="TRADELOCKER")
+        if error:
+            return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": "" }
+
+        error = checking_data_type(d, broker="TRADELOCKER")
+        if error:
+            return {"error": True,"missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""  }
+        error = checking_order_type(d,broker="TRADELOCKER")
+        if error:
+            return { "error": True,"missing_fields": [], "invalid_fields": error,  "warnings": [], "description": ""  }
+        error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="TRADELOCKER")
+        if error:
+            return {
+            "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
+            "description": "Missing data. Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
+        }
+    except Exception as e:
+        pass
+    return { "error": False, "missing_fields": [],"invalid_fields": [], "warnings": [],"description": ""
+    }
+
+def validate_and_describe_projectx_alert_json(d: dict, raw_payload: str = None, allow_placeholders: bool = True) -> dict:
+    try:
+        # checking first json format is ok or not
+        error,msg = check_raw_payload(d,raw_payload,broker="PROJECTX")
+        if error:
+            return msg
+
+        ALL_FIELDS = {"strategy_name": "str","symbol": "str","date": "str","data": "str",
+	"quantity": "int","risk_percentage": "int","price": "float","gtd_in_second": "int",
+	"stp_limit_stp_price": "float",	"tp": "float",	"percentage_tp": "float",
+	"dollar_tp": "float",	"sl": "float",	"percentage_sl": "float",	"dollar_sl": "float",	"token": "str","reverse_order_close": "bool",	"order_type": "str",
+     "option_type": "str", "expiry_date": "str",   "order_strike": "float", "multiple_accounts": "list"
+}
+        ADVANCE_TP_SL_FIELDS = {"quantity": "int","tp": "float","percentage_tp": "float",
+            "dollar_tp": "float", "sl": "float", "percentage_sl": "float",
+            "dollar_sl": "float"
+        }
+        MULTIPLE_ACCOUNT_FIELDS = {
+            "token": "str", "account_id": "str","connection_name": "str", "risk_percentage": "float","quantity_multiplier": "float"
+        }
+
+        error = checking_data_type(d, broker="PROJECTX")
+        if error:
+            return {"error": True,"missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""  }
+        error = checking_order_type(d,broker="PROJECTX")
+        if error:
+            return { "error": True,"missing_fields": [], "invalid_fields": error,  "warnings": [], "description": ""  }
+        error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="PROJECTX")
+        if error:
+            return {
+            "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
+            "description": "Missing data. Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
+        }
+    except Exception as e:
+        pass
+    return { "error": False, "missing_fields": [],"invalid_fields": [], "warnings": [],"description": ""
+    }
+
+
+def validate_and_describe_binance_alert_json(d: dict, raw_payload: str = None, allow_placeholders: bool = True) -> dict:
+    try:
+        # checking first json format is ok or not
+        error, msg = check_raw_payload(d, raw_payload, broker="BINANCE")
+        if error:
+            return msg
+
+        ALL_FIELDS = {"strategy_name": "str", "symbol": "str", "date": "str", "data": "str",
+                      "quantity": "int", "risk_percentage": "int", "price": "float", "gtd_in_second": "int",
+                      "stp_limit_stp_price": "float", "tp": "float", "percentage_tp": "float",
+                      "dollar_tp": "float", "sl": "float", "percentage_sl": "float", "dollar_sl": "float", "token": "str", "reverse_order_close": "bool", "order_type": "str",
+                      "option_type": "str", "expiry_date": "str", "order_strike": "float", "multiple_accounts": "list"
+                      }
+        ADVANCE_TP_SL_FIELDS = {"quantity": "int", "tp": "float", "percentage_tp": "float",
+                                "dollar_tp": "float", "sl": "float", "percentage_sl": "float",
+                                "dollar_sl": "float"
+                                }
+        MULTIPLE_ACCOUNT_FIELDS = {
+            "token": "str", "account_id": "str", "connection_name": "str", "risk_percentage": "float", "quantity_multiplier": "float"
+        }
+
+        error = checking_data_type(d, broker="BINANCE")
+        if error:
+            return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""}
+        error = checking_order_type(d, broker="BINANCE")
+        if error:
+            return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""}
+        error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker="BINANCE")
+        if error:
+            return {
+                "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
+                "description": "Missing data. Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
+            }
+    except Exception as e:
+        pass
+    return {"error": False, "missing_fields": [], "invalid_fields": [], "warnings": [], "description": ""
+            }
+
+def validate_and_describe_matchtrader_alert_json(d: dict, raw_payload: str = None, allow_placeholders: bool = True) -> dict:
+    try:
+        # checking first json format is ok or not
+        error, msg = check_raw_payload(d, raw_payload, broker="MATCHTRADER")
+        if error:
+            return msg
+
+        ALL_FIELDS = {"strategy_name": "str", "symbol": "str", "date": "str", "data": "str",
+                      "quantity": "int", "risk_percentage": "int", "price": "float", "gtd_in_second": "int",
+                      "stp_limit_stp_price": "float", "tp": "float", "percentage_tp": "float","ins_type":"str",
+                      "dollar_tp": "float", "sl": "float", "percentage_sl": "float", "dollar_sl": "float", "token": "str", "reverse_order_close": "bool",
+                      "order_type": "str",
+                      "option_type": "str", "expiry_date": "str", "order_strike": "float", "multiple_accounts": "list"
+                      }
+        ADVANCE_TP_SL_FIELDS = {"quantity": "int", "tp": "float", "percentage_tp": "float",
+                                "dollar_tp": "float", "sl": "float", "percentage_sl": "float",
+                                "dollar_sl": "float"
+                                }
+        MULTIPLE_ACCOUNT_FIELDS = {
+            "token": "str", "account_id": "str", "connection_name": "str", "risk_percentage": "float", "quantity_multiplier": "float"
+        }
+        error = checking_ins_type(d, broker="MATCHTRADER")
+        if error:
+            return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": "" }
+
+        error = checking_data_type(d, broker="MATCHTRADER")
+        if error:
+            return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""}
+        error = checking_order_type(d, broker="MATCHTRADER")
+        if error:
+            return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""}
+        error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker="MATCHTRADER")
+        if error:
+            return {
+                "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
+                "description": "Missing data. Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
+            }
+    except Exception as e:
+        pass
+    return {"error": False, "missing_fields": [], "invalid_fields": [], "warnings": [], "description": ""
+            }
+
+def validate_and_describe_bybit_alert_json(d: dict, raw_payload: str = None, allow_placeholders: bool = True) -> dict:
+    try:
+        # checking first json format is ok or not
+        error, msg = check_raw_payload(d, raw_payload, broker="BYBIT")
+        if error:
+            return msg
+
+        ALL_FIELDS = {"strategy_name": "str", "symbol": "str", "date": "str", "data": "str",
+                      "quantity": "int", "risk_percentage": "int", "price": "float", "gtd_in_second": "int",
+                      "stp_limit_stp_price": "float", "tp": "float", "percentage_tp": "float",
+                      "dollar_tp": "float", "sl": "float", "percentage_sl": "float", "dollar_sl": "float", "token": "str", "reverse_order_close": "bool",
+                      "order_type": "str",
+                      "option_type": "str", "expiry_date": "str", "order_strike": "float", "multiple_accounts": "list"
+                      }
+        ADVANCE_TP_SL_FIELDS = {"quantity": "int", "tp": "float", "percentage_tp": "float",
+                                "dollar_tp": "float", "sl": "float", "percentage_sl": "float",
+                                "dollar_sl": "float"
+                                }
+        MULTIPLE_ACCOUNT_FIELDS = {
+            "token": "str", "account_id": "str", "connection_name": "str", "risk_percentage": "float", "quantity_multiplier": "float"
+        }
+
+
+        error = checking_data_type(d, broker="BYBIT")
+        if error:
+            return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""}
+        error = checking_order_type(d, broker="BYBIT")
+        if error:
+            return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""}
+        error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker="BYBIT")
+        if error:
+            return {
+                "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
+                "description": "Missing data. Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
+            }
+    except Exception as e:
+        pass
+    return {"error": False, "missing_fields": [], "invalid_fields": [], "warnings": [], "description": ""
+            }
 
 try:
     from .broker_capabilities import (

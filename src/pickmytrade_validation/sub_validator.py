@@ -44,19 +44,19 @@ def check_type(value, expected_type):
 def validate_dict(data, schema, prefix="",broker=None):
     errors = []
     for field, expected_type in schema.items():
-        if broker == 'TRADOVATE':
+        # if broker == 'TRADOVATE':
             # not checking non required field
-            if (field == 'trail' or field == 'trail_trigger' or field == 'trail_stop' or field == 'trail_freq'):
-                if 'trail' not in data or data['trail'] == 0:
-                    continue
-            elif (field == 'breakeven' or field == 'breakeven_offset'):
-                if 'breakeven' not in data or data['breakeven'] == 0:
-                    continue
-            elif (field == 'pyramid',field == 'gtd_in_second' or field == 'risk_percentage'or field == 'tp'or field == 'sl'or field == 'dollar_tp'or field == 'dollar_sl'or field == 'percentage_tp'or field == 'percentage_sl') and field not in data:
+        if (field == 'trail' or field == 'trail_trigger' or field == 'trail_stop' or field == 'trail_freq'):
+            if 'trail' not in data or data['trail'] == 0:
                 continue
-            elif (field == "option_type" or field == "expiry_date" or field == "order_strike"):
-                if 'inst_type' not in data or data['inst_type'] != "OPTIONS":
-                    continue
+        elif (field == 'breakeven' or field == 'breakeven_offset'):
+            if 'breakeven' not in data or data['breakeven'] == 0:
+                continue
+        elif (field == 'pyramid',field == 'gtd_in_second' or field == 'risk_percentage'or field == 'tp'or field == 'sl'or field == 'dollar_tp'or field == 'dollar_sl'or field == 'percentage_tp'or field == 'percentage_sl') and field not in data:
+            continue
+        elif (field == "option_type" or field == "expiry_date" or field == "order_strike"):
+            if 'inst_type' not in data or data['inst_type'] != "OPTIONS":
+                continue
 
         if field not in data:
             errors.append(f"{prefix}{field} is missing")
@@ -100,8 +100,14 @@ def checking_ins_type(payload,broker):
     order_type = payload.get("data", "").upper()
     if broker == 'TRADESTATION':
         valid_order_types = ["STOCK", "FUTURES", "OPTIONS"]
+    elif broker == 'IB':
+        valid_order_types = ["STOCK", "FUTURES", "OPTIONS","FOP","OPT"]
+    elif broker == "TRADELOCKER":
+        valid_order_types = ["CRYPTO", "EQUITY_CFD", "FOREX"]
+    elif broker == "MATCHTRADER":
+        valid_order_types = ["CFD", "FOREX", "FOREXCFD","PRED"]
     else:
-        valid_order_types = ["STOCK", "FUTURES", "OPTIONS"]
+        valid_order_types = ["STOCK", "FUTURES", "OPTIONS","FOP"]
     if order_type not in valid_order_types:
         errors.append(
             f"Invalid ins type: '{order_type}'. Valid options are: {', '.join(valid_order_types)}"
@@ -111,10 +117,7 @@ def checking_ins_type(payload,broker):
 def checking_data_type(payload,broker):
     errors = []
     order_type = payload.get("data", "").upper()
-    if broker == 'TRADOVATE' or broker == 'RITHMIC' or broker == 'IB' or broker=='TRADESTATION':
-        valid_order_types = ["BUY", "SELL", "CLOSE", "LONG", "SHORT", "FLAT"]
-    else:
-        valid_order_types = ["BUY", "SELL", "CLOSE", "LONG", "SHORT", "FLAT"]
+    valid_order_types = ["BUY", "SELL", "CLOSE", "LONG", "SHORT", "FLAT"]
     if order_type not in valid_order_types:
         errors.append(
             f"Invalid data type: '{order_type}'. Valid options are: {', '.join(valid_order_types)}"
@@ -126,10 +129,8 @@ def checking_order_type(payload,broker):
     order_type = payload.get("order_type", "").upper()
     if broker == 'TRADOVATE':
         valid_order_types = ["MKT", "LMT", "STP", "STPLMT"]
-    elif broker == 'RITHMIC' or broker == 'IB' or broker=='TRADESTATION':
-        valid_order_types = ["MKT", "LMT", "STP"]
     else:
-        valid_order_types = ["MKT", "LMT", "STP", "STPLMT"]
+        valid_order_types = ["MKT", "LMT"]
     if order_type not in valid_order_types:
         errors.append(
             f"Invalid order_type: '{order_type}'. Valid options are: {', '.join(valid_order_types)}"
