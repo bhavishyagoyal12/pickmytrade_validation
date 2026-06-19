@@ -65,9 +65,14 @@ def validate_dict(data, schema, prefix="",broker=None,allow_placeholders=False):
         if allow_placeholders:
             err = isinstance(value, str) and "{{" in value and "}}" in value
             if not err:
-                errors.append(
-                    f"{prefix}{field} supports {expected_type} value only"
-                )
+                if not check_type(value, expected_type):
+                    errors.append(
+                        f"{prefix}{field} supports {expected_type} value only"
+                    )
+
+                # errors.append(
+                #     f"{prefix}{field} supports {expected_type} value only"
+                # )
         else:
             if not check_type(value, expected_type):
                 errors.append(
