@@ -41,7 +41,7 @@ def check_type(value, expected_type):
         return isinstance(value, list)
     return False
 
-def validate_dict(data, schema, prefix="",broker=None):
+def validate_dict(data, schema, prefix="",broker=None,allow_placeholders=False):
     errors = []
     for field, expected_type in schema.items():
         # if broker == 'TRADOVATE':
@@ -62,16 +62,23 @@ def validate_dict(data, schema, prefix="",broker=None):
             errors.append(f"{prefix}{field} is missing")
             continue
         value = data[field]
-        if not check_type(value, expected_type):
-            errors.append(
-                f"{prefix}{field} supports {expected_type} value only"
-            )
+        if allow_placeholders:
+            err = isinstance(value, str) and "{{" in value and "}}" in value
+            if not err:
+                errors.append(
+                    f"{prefix}{field} supports {expected_type} value only"
+                )
+        else:
+            if not check_type(value, expected_type):
+                errors.append(
+                    f"{prefix}{field} supports {expected_type} value only"
+                )
     return errors
 
-def validate_payload(payload,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker):
+def validate_payload(payload,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker,allow_placeholders=False):
     errors = []
     # Top-level validation
-    errors.extend(validate_dict(payload, ALL_FIELDS, broker=broker))
+    errors.extend(validate_dict(payload, ALL_FIELDS, broker=broker,allow_placeholders=allow_placeholders))
     # advance_tp_sl validation
     if payload.get("advance_tp_sl"):
         if isinstance(payload.get("advance_tp_sl"), list):
@@ -80,7 +87,7 @@ def validate_payload(payload,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FI
                     validate_dict(
                         item,
                         ADVANCE_TP_SL_FIELDS,
-                        prefix=f"advance_tp_sl[{idx}].",broker=broker
+                        prefix=f"advance_tp_sl[{idx}].",broker=broker,allow_placeholders=allow_placeholders
                     )
                 )
     # multiple_accounts validation
@@ -90,12 +97,12 @@ def validate_payload(payload,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FI
                 validate_dict(
                     item,
                     MULTIPLE_ACCOUNT_FIELDS,
-                    prefix=f"multiple_accounts[{idx}]."
+                    prefix=f"multiple_accounts[{idx}].",allow_placeholders=allow_placeholders
                 )
             )
     return errors
 
-def checking_ins_type(payload,broker):
+def checking_ins_type(payload,broker,allow_placeholders=False):
     errors = []
     order_type = payload.get("data", "").upper()
     if broker == 'TRADESTATION':
@@ -114,7 +121,7 @@ def checking_ins_type(payload,broker):
         )
     return errors
 
-def checking_data_type(payload,broker):
+def checking_data_type(payload,broker,allow_placeholders=False):
     errors = []
     order_type = payload.get("data", "").upper()
     valid_order_types = ["BUY", "SELL", "CLOSE", "LONG", "SHORT", "FLAT"]
@@ -124,7 +131,7 @@ def checking_data_type(payload,broker):
         )
     return errors
 
-def checking_order_type(payload,broker):
+def checking_order_type(payload,broker,allow_placeholders=False):
     errors = []
     order_type = payload.get("order_type", "").upper()
     if broker == 'TRADOVATE':

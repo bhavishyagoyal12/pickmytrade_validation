@@ -28,15 +28,15 @@ def validate_and_describe_tradovate_alert_json(d: dict, raw_payload: str = None,
         MULTIPLE_ACCOUNT_FIELDS = {
             "token": "str", "account_id": "str", "risk_percentage": "float","quantity_multiplier": "float"
         }
-        error = checking_data_type(d, broker="TRADOVATE")
+        error = checking_data_type(d, broker="TRADOVATE",allow_placeholders=allow_placeholders)
         if error:
             return {"error": True,"missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""
             }
-        error = checking_order_type(d,broker="TRADOVATE")
+        error = checking_order_type(d,broker="TRADOVATE",allow_placeholders=allow_placeholders)
         if error:
             return { "error": True,"missing_fields": [], "invalid_fields": error,  "warnings": [], "description": ""
         }
-        error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="TRADOVATE")
+        error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="TRADOVATE",allow_placeholders=allow_placeholders)
         if error:
             return {
             "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
@@ -69,15 +69,15 @@ def validate_and_describe_rithmic_alert_json(d: dict, raw_payload: str = None, a
         MULTIPLE_ACCOUNT_FIELDS = {
             "token": "str", "account_id": "str", "risk_percentage": "float","quantity_multiplier": "float"
         }
-        error = checking_data_type(d, broker="RITHMIC")
+        error = checking_data_type(d, broker="RITHMIC",allow_placeholders=allow_placeholders)
         if error:
             return {"error": True,"missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""
             }
-        error = checking_order_type(d,broker="RITHMIC")
+        error = checking_order_type(d,broker="RITHMIC",allow_placeholders=allow_placeholders)
         if error:
             return { "error": True,"missing_fields": [], "invalid_fields": error,  "warnings": [], "description": ""
         }
-        error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="RITHMIC")
+        error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="RITHMIC",allow_placeholders=allow_placeholders)
         if error:
             return {
             "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
@@ -110,20 +110,20 @@ def validate_and_describe_ib_alert_json(d: dict, raw_payload: str = None, allow_
             "token": "str", "account_id": "str", "risk_percentage": "float","quantity_multiplier": "float"
         }
 
-        error = checking_ins_type(d, broker="IB")
+        error = checking_ins_type(d, broker="IB",allow_placeholders=allow_placeholders)
         if error:
             return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""
                     }
 
-        error = checking_data_type(d, broker="IB")
+        error = checking_data_type(d, broker="IB",allow_placeholders=allow_placeholders)
         if error:
             return {"error": True,"missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""
             }
-        error = checking_order_type(d,broker="IB")
+        error = checking_order_type(d,broker="IB",allow_placeholders=allow_placeholders)
         if error:
             return { "error": True,"missing_fields": [], "invalid_fields": error,  "warnings": [], "description": ""
         }
-        error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="IB")
+        error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="IB",allow_placeholders=allow_placeholders)
         if error:
             return {
             "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
@@ -158,20 +158,20 @@ def validate_and_describe_tradestation_alert_json(d: dict, raw_payload: str = No
         MULTIPLE_ACCOUNT_FIELDS = {
             "token": "str", "account_id": "str","connection_name": "str", "risk_percentage": "float","quantity_multiplier": "float"
         }
-        error = checking_ins_type(d, broker="TRADESTATION")
+        error = checking_ins_type(d, broker="TRADESTATION",allow_placeholders=allow_placeholders)
         if error:
             return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""
                     }
 
-        error = checking_data_type(d, broker="TRADESTATION")
+        error = checking_data_type(d, broker="TRADESTATION",allow_placeholders=allow_placeholders)
         if error:
             return {"error": True,"missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""
             }
-        error = checking_order_type(d,broker="TRADESTATION")
+        error = checking_order_type(d,broker="TRADESTATION",allow_placeholders=allow_placeholders)
         if error:
             return { "error": True,"missing_fields": [], "invalid_fields": error,  "warnings": [], "description": ""
         }
-        error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="TRADESTATION")
+        error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="TRADESTATION",allow_placeholders=allow_placeholders)
         if error:
             return {
             "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
@@ -204,17 +204,17 @@ def validate_and_describe_tradelocker_alert_json(d: dict, raw_payload: str = Non
         MULTIPLE_ACCOUNT_FIELDS = {
             "token": "str", "account_id": "str","connection_name": "str", "risk_percentage": "float","quantity_multiplier": "float"
         }
-        error = checking_ins_type(d, broker="TRADELOCKER")
+        error = checking_ins_type(d, broker="TRADELOCKER",allow_placeholders=allow_placeholders)
         if error:
             return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": "" }
 
-        error = checking_data_type(d, broker="TRADELOCKER")
+        error = checking_data_type(d, broker="TRADELOCKER",allow_placeholders=allow_placeholders)
         if error:
             return {"error": True,"missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""  }
-        error = checking_order_type(d,broker="TRADELOCKER")
+        error = checking_order_type(d,broker="TRADELOCKER",allow_placeholders=allow_placeholders)
         if error:
             return { "error": True,"missing_fields": [], "invalid_fields": error,  "warnings": [], "description": ""  }
-        error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="TRADELOCKER")
+        error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="TRADELOCKER",allow_placeholders=allow_placeholders)
         if error:
             return {
             "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
@@ -246,13 +246,13 @@ def validate_and_describe_projectx_alert_json(d: dict, raw_payload: str = None, 
             "token": "str", "account_id": "str","connection_name": "str", "risk_percentage": "float","quantity_multiplier": "float"
         }
 
-        error = checking_data_type(d, broker="PROJECTX")
+        error = checking_data_type(d, broker="PROJECTX",allow_placeholders=allow_placeholders)
         if error:
             return {"error": True,"missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""  }
-        error = checking_order_type(d,broker="PROJECTX")
+        error = checking_order_type(d,broker="PROJECTX",allow_placeholders=allow_placeholders)
         if error:
             return { "error": True,"missing_fields": [], "invalid_fields": error,  "warnings": [], "description": ""  }
-        error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="PROJECTX")
+        error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="PROJECTX",allow_placeholders=allow_placeholders)
         if error:
             return {
             "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
@@ -285,13 +285,13 @@ def validate_and_describe_binance_alert_json(d: dict, raw_payload: str = None, a
             "token": "str", "account_id": "str", "connection_name": "str", "risk_percentage": "float", "quantity_multiplier": "float"
         }
 
-        error = checking_data_type(d, broker="BINANCE")
+        error = checking_data_type(d, broker="BINANCE",allow_placeholders=allow_placeholders)
         if error:
             return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""}
-        error = checking_order_type(d, broker="BINANCE")
+        error = checking_order_type(d, broker="BINANCE",allow_placeholders=allow_placeholders)
         if error:
             return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""}
-        error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker="BINANCE")
+        error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker="BINANCE",allow_placeholders=allow_placeholders)
         if error:
             return {
                 "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
@@ -323,17 +323,17 @@ def validate_and_describe_matchtrader_alert_json(d: dict, raw_payload: str = Non
         MULTIPLE_ACCOUNT_FIELDS = {
             "token": "str", "account_id": "str", "connection_name": "str", "risk_percentage": "float", "quantity_multiplier": "float"
         }
-        error = checking_ins_type(d, broker="MATCHTRADER")
+        error = checking_ins_type(d, broker="MATCHTRADER",allow_placeholders=allow_placeholders)
         if error:
             return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": "" }
 
-        error = checking_data_type(d, broker="MATCHTRADER")
+        error = checking_data_type(d, broker="MATCHTRADER",allow_placeholders=allow_placeholders)
         if error:
             return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""}
-        error = checking_order_type(d, broker="MATCHTRADER")
+        error = checking_order_type(d, broker="MATCHTRADER",allow_placeholders=allow_placeholders)
         if error:
             return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""}
-        error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker="MATCHTRADER")
+        error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker="MATCHTRADER",allow_placeholders=allow_placeholders)
         if error:
             return {
                 "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
@@ -367,13 +367,13 @@ def validate_and_describe_bybit_alert_json(d: dict, raw_payload: str = None, all
         }
 
 
-        error = checking_data_type(d, broker="BYBIT")
+        error = checking_data_type(d, broker="BYBIT",allow_placeholders=allow_placeholders)
         if error:
             return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""}
-        error = checking_order_type(d, broker="BYBIT")
+        error = checking_order_type(d, broker="BYBIT",allow_placeholders=allow_placeholders)
         if error:
             return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""}
-        error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker="BYBIT")
+        error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker="BYBIT",allow_placeholders=allow_placeholders)
         if error:
             return {
                 "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
