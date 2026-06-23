@@ -46,9 +46,21 @@ def validate_dict(data, schema, prefix="",broker=None,allow_placeholders=False):
     for field, expected_type in schema.items():
         # if broker == 'TRADOVATE':
             # not checking non required field
+        if field == "account_id" and 'account_id' in data and data['account_id'] == "":
+            errors.append(f"account_id value is missing")
+            continue
         if (field == 'trail' or field == 'trail_trigger' or field == 'trail_stop' or field == 'trail_freq'):
             if 'trail' not in data or data['trail'] == 0:
                 continue
+            elif 'trail' in data:
+                if data['trail'] == 1:
+                    if ('sl' not in data or data['sl'] == 0) and ('percentage_sl' not in data or data['percentage_sl'] == 0) and ('dollar_sl' not in data or data['dollar_sl'] == 0):
+                        errors.append(f"sl is missing for trail")
+                    continue
+                else:
+                    errors.append(f"wrong value in trail")
+                    continue
+
         elif (field == 'breakeven' or field == 'breakeven_offset'):
             if 'breakeven' not in data or data['breakeven'] == 0:
                 continue
@@ -57,6 +69,8 @@ def validate_dict(data, schema, prefix="",broker=None,allow_placeholders=False):
         elif (field == "option_type" or field == "expiry_date" or field == "order_strike"):
             if 'inst_type' not in data or data['inst_type'] != "OPTIONS":
                 continue
+        elif (field == "order_type") and ('order_type' not in data):
+            continue
 
         if field not in data:
             errors.append(f"{prefix}{field} is missing")
@@ -139,6 +153,8 @@ def checking_data_type(payload,broker,allow_placeholders=False):
 def checking_order_type(payload,broker,allow_placeholders=False):
     errors = []
     order_type = payload.get("order_type", "").upper()
+    if order_type:
+        return []
     if broker == 'TRADOVATE':
         valid_order_types = ["MKT", "LMT", "STP", "STPLMT"]
     else:

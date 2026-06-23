@@ -4,12 +4,12 @@ import re
 from .sub_validator import check_raw_payload, validate_payload, checking_order_type, checking_data_type, checking_ins_type
 
 
-def validate_and_describe_tradovate_alert_json(d: dict, raw_payload: str = None, allow_placeholders: bool = True) -> dict:
+def validate_and_describe_tradovate_alert_json(d: dict,  allow_placeholders: bool = True) -> dict:
     try:
         # checking first json format is ok or not
-        error,msg = check_raw_payload(d,raw_payload,broker="TRADOVATE")
-        if error:
-            return msg
+        # error,msg = check_raw_payload(d,raw_payload,broker="TRADOVATE")
+        # if error:
+        #     return msg
 
         ALL_FIELDS = {"strategy_name": "str","symbol": "str","date": "str","data": "str",
 	"quantity": "int","risk_percentage": "int","price": "float","gtd_in_second": "int",
@@ -47,12 +47,12 @@ def validate_and_describe_tradovate_alert_json(d: dict, raw_payload: str = None,
     return { "error": False, "missing_fields": [],"invalid_fields": [], "warnings": [],"description": ""
     }
 
-def validate_and_describe_rithmic_alert_json(d: dict, raw_payload: str = None, allow_placeholders: bool = True) -> dict:
+def validate_and_describe_rithmic_alert_json(d: dict,  allow_placeholders: bool = True) -> dict:
     try:
         # checking first json format is ok or not
-        error,msg = check_raw_payload(d,raw_payload,broker="RITHMIC")
-        if error:
-            return msg
+        # error,msg = check_raw_payload(d,raw_payload,broker="RITHMIC")
+        # if error:
+        #     return msg
 
         ALL_FIELDS = {"strategy_name": "str","symbol": "str","date": "str","data": "str",
 	"quantity": "int","risk_percentage": "int","price": "float",
@@ -88,12 +88,12 @@ def validate_and_describe_rithmic_alert_json(d: dict, raw_payload: str = None, a
     return { "error": False, "missing_fields": [],"invalid_fields": [], "warnings": [],"description": ""
     }
 
-def validate_and_describe_ib_alert_json(d: dict, raw_payload: str = None, allow_placeholders: bool = True) -> dict:
+def validate_and_describe_ib_alert_json(d: dict, allow_placeholders: bool = True) -> dict:
     try:
         # checking first json format is ok or not
-        error,msg = check_raw_payload(d,raw_payload,broker="IB")
-        if error:
-            return msg
+        # error,msg = check_raw_payload(d,raw_payload,broker="IB")
+        # if error:
+        #     return msg
 
         ALL_FIELDS = {"strategy_name": "str","symbol": "str","date": "str","data": "str",
 	"quantity": "int","risk_percentage": "int","price": "float",	"tp": "float",	"percentage_tp": "float",
@@ -136,12 +136,12 @@ def validate_and_describe_ib_alert_json(d: dict, raw_payload: str = None, allow_
 
 
 
-def validate_and_describe_tradestation_alert_json(d: dict, raw_payload: str = None, allow_placeholders: bool = True) -> dict:
+def validate_and_describe_tradestation_alert_json(d: dict,  allow_placeholders: bool = True) -> dict:
     try:
         # checking first json format is ok or not
-        error,msg = check_raw_payload(d,raw_payload,broker="TRADESTATION")
-        if error:
-            return msg
+        # error,msg = check_raw_payload(d,raw_payload,broker="TRADESTATION")
+        # if error:
+        #     return msg
 
         ALL_FIELDS = {"strategy_name": "str","symbol": "str","date": "str","data": "str",
 	"quantity": "int","risk_percentage": "int","price": "float","gtd_in_second": "int",
@@ -182,12 +182,12 @@ def validate_and_describe_tradestation_alert_json(d: dict, raw_payload: str = No
     return { "error": False, "missing_fields": [],"invalid_fields": [], "warnings": [],"description": ""
     }
 
-def validate_and_describe_tradelocker_alert_json(d: dict, raw_payload: str = None, allow_placeholders: bool = True) -> dict:
+def validate_and_describe_tradelocker_alert_json(d: dict,  allow_placeholders: bool = True) -> dict:
     try:
         # checking first json format is ok or not
-        error,msg = check_raw_payload(d,raw_payload,broker="TRADELOCKER")
-        if error:
-            return msg
+        # error,msg = check_raw_payload(d,raw_payload,broker="TRADELOCKER")
+        # if error:
+        #     return msg
 
         ALL_FIELDS = {"strategy_name": "str","symbol": "str","date": "str","data": "str",
 	"quantity": "int","risk_percentage": "int","price": "float","gtd_in_second": "int",
@@ -225,12 +225,12 @@ def validate_and_describe_tradelocker_alert_json(d: dict, raw_payload: str = Non
     return { "error": False, "missing_fields": [],"invalid_fields": [], "warnings": [],"description": ""
     }
 
-def validate_and_describe_projectx_alert_json(d: dict, raw_payload: str = None, allow_placeholders: bool = True) -> dict:
+def validate_and_describe_projectx_alert_json(d: dict,  allow_placeholders: bool = True) -> dict:
     try:
         # checking first json format is ok or not
-        error,msg = check_raw_payload(d,raw_payload,broker="PROJECTX")
-        if error:
-            return msg
+        # error,msg = check_raw_payload(d,raw_payload,broker="PROJECTX")
+        # if error:
+        #     return msg
 
         ALL_FIELDS = {"strategy_name": "str","symbol": "str","date": "str","data": "str",
 	"quantity": "int","risk_percentage": "int","price": "float","gtd_in_second": "int",
@@ -264,12 +264,12 @@ def validate_and_describe_projectx_alert_json(d: dict, raw_payload: str = None, 
     }
 
 
-def validate_and_describe_binance_alert_json(d: dict, raw_payload: str = None, allow_placeholders: bool = True) -> dict:
+def validate_and_describe_binance_alert_json(d: dict,  allow_placeholders: bool = True) -> dict:
     try:
         # checking first json format is ok or not
-        error, msg = check_raw_payload(d, raw_payload, broker="BINANCE")
-        if error:
-            return msg
+        # error, msg = check_raw_payload(d, raw_payload, broker="BINANCE")
+        # if error:
+        #     return msg
 
         ALL_FIELDS = {"strategy_name": "str", "symbol": "str", "date": "str", "data": "str",
                       "quantity": "int", "risk_percentage": "int", "price": "float", "gtd_in_second": "int",
@@ -302,12 +302,12 @@ def validate_and_describe_binance_alert_json(d: dict, raw_payload: str = None, a
     return {"error": False, "missing_fields": [], "invalid_fields": [], "warnings": [], "description": ""
             }
 
-def validate_and_describe_matchtrader_alert_json(d: dict, raw_payload: str = None, allow_placeholders: bool = True) -> dict:
+def validate_and_describe_matchtrader_alert_json(d: dict,  allow_placeholders: bool = True) -> dict:
     try:
         # checking first json format is ok or not
-        error, msg = check_raw_payload(d, raw_payload, broker="MATCHTRADER")
-        if error:
-            return msg
+        # error, msg = check_raw_payload(d, raw_payload, broker="MATCHTRADER")
+        # if error:
+        #     return msg
 
         ALL_FIELDS = {"strategy_name": "str", "symbol": "str", "date": "str", "data": "str",
                       "quantity": "int", "risk_percentage": "int", "price": "float", "gtd_in_second": "int",
@@ -344,12 +344,12 @@ def validate_and_describe_matchtrader_alert_json(d: dict, raw_payload: str = Non
     return {"error": False, "missing_fields": [], "invalid_fields": [], "warnings": [], "description": ""
             }
 
-def validate_and_describe_bybit_alert_json(d: dict, raw_payload: str = None, allow_placeholders: bool = True) -> dict:
+def validate_and_describe_bybit_alert_json(d: dict,  allow_placeholders: bool = True) -> dict:
     try:
         # checking first json format is ok or not
-        error, msg = check_raw_payload(d, raw_payload, broker="BYBIT")
-        if error:
-            return msg
+        # error, msg = check_raw_payload(d, raw_payload, broker="BYBIT")
+        # if error:
+        #     return msg
 
         ALL_FIELDS = {"strategy_name": "str", "symbol": "str", "date": "str", "data": "str",
                       "quantity": "int", "risk_percentage": "int", "price": "float", "gtd_in_second": "int",
