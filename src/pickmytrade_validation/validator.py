@@ -28,19 +28,14 @@ def validate_and_describe_tradovate_alert_json(d: dict,  allow_placeholders: boo
         MULTIPLE_ACCOUNT_FIELDS = {
             "token": "str", "account_id": "str", "risk_percentage": "float","quantity_multiplier": "float"
         }
-        error = checking_data_type(d, broker="TRADOVATE",allow_placeholders=allow_placeholders)
-        if error:
-            return {"error": True,"missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""
-            }
-        error = checking_order_type(d,broker="TRADOVATE",allow_placeholders=allow_placeholders)
-        if error:
-            return { "error": True,"missing_fields": [], "invalid_fields": error,  "warnings": [], "description": ""
-        }
+        error1 = checking_data_type(d, broker="TRADOVATE",allow_placeholders=allow_placeholders)
+        error2 = checking_order_type(d,broker="TRADOVATE",allow_placeholders=allow_placeholders)
         error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="TRADOVATE",allow_placeholders=allow_placeholders)
         if error:
+            error = error + error1 + error2
             return {
             "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
-            "description": "Missing data. Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
+            "description": "Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
         }
     except Exception as e:
         pass
@@ -69,19 +64,14 @@ def validate_and_describe_rithmic_alert_json(d: dict,  allow_placeholders: bool 
         MULTIPLE_ACCOUNT_FIELDS = {
             "token": "str", "account_id": "str", "risk_percentage": "float","quantity_multiplier": "float"
         }
-        error = checking_data_type(d, broker="RITHMIC",allow_placeholders=allow_placeholders)
-        if error:
-            return {"error": True,"missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""
-            }
-        error = checking_order_type(d,broker="RITHMIC",allow_placeholders=allow_placeholders)
-        if error:
-            return { "error": True,"missing_fields": [], "invalid_fields": error,  "warnings": [], "description": ""
-        }
+        error1 = checking_data_type(d, broker="RITHMIC",allow_placeholders=allow_placeholders)
+        error2 = checking_order_type(d,broker="RITHMIC",allow_placeholders=allow_placeholders)
         error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="RITHMIC",allow_placeholders=allow_placeholders)
-        if error:
+        if error  or error1 or error2:
+            error = error + error1 + error2
             return {
             "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
-            "description": "Missing data. Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
+            "description": "Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
         }
     except Exception as e:
         pass
@@ -110,24 +100,15 @@ def validate_and_describe_ib_alert_json(d: dict, allow_placeholders: bool = True
             "token": "str", "account_id": "str", "risk_percentage": "float","quantity_multiplier": "float"
         }
 
-        error = checking_ins_type(d, broker="IB",allow_placeholders=allow_placeholders)
-        if error:
-            return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""
-                    }
-
-        error = checking_data_type(d, broker="IB",allow_placeholders=allow_placeholders)
-        if error:
-            return {"error": True,"missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""
-            }
-        error = checking_order_type(d,broker="IB",allow_placeholders=allow_placeholders)
-        if error:
-            return { "error": True,"missing_fields": [], "invalid_fields": error,  "warnings": [], "description": ""
-        }
+        error1 = checking_ins_type(d, broker="IB",allow_placeholders=allow_placeholders)
+        error2 = checking_data_type(d, broker="IB",allow_placeholders=allow_placeholders)
+        error3 = checking_order_type(d,broker="IB",allow_placeholders=allow_placeholders)
         error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="IB",allow_placeholders=allow_placeholders)
-        if error:
+        if error or error1 or error2 or error3:
+            error = error + error1 + error2 + error3
             return {
             "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
-            "description": "Missing data. Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
+            "description": "Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
         }
     except Exception as e:
         pass
@@ -158,24 +139,15 @@ def validate_and_describe_tradestation_alert_json(d: dict,  allow_placeholders: 
         MULTIPLE_ACCOUNT_FIELDS = {
             "token": "str", "account_id": "str","connection_name": "str", "risk_percentage": "float","quantity_multiplier": "float"
         }
-        error = checking_ins_type(d, broker="TRADESTATION",allow_placeholders=allow_placeholders)
-        if error:
-            return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""
-                    }
-
-        error = checking_data_type(d, broker="TRADESTATION",allow_placeholders=allow_placeholders)
-        if error:
-            return {"error": True,"missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""
-            }
-        error = checking_order_type(d,broker="TRADESTATION",allow_placeholders=allow_placeholders)
-        if error:
-            return { "error": True,"missing_fields": [], "invalid_fields": error,  "warnings": [], "description": ""
-        }
+        error1 = checking_ins_type(d, broker="TRADESTATION",allow_placeholders=allow_placeholders)
+        error2 = checking_data_type(d, broker="TRADESTATION",allow_placeholders=allow_placeholders)
+        error3 = checking_order_type(d,broker="TRADESTATION",allow_placeholders=allow_placeholders)
         error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="TRADESTATION",allow_placeholders=allow_placeholders)
-        if error:
+        if error or error1 or error2 or error3:
+            error = error + error1 + error2 + error3
             return {
             "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
-            "description": "Missing data. Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
+            "description": "Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
         }
     except Exception as e:
         pass
@@ -204,21 +176,15 @@ def validate_and_describe_tradelocker_alert_json(d: dict,  allow_placeholders: b
         MULTIPLE_ACCOUNT_FIELDS = {
             "token": "str", "account_id": "str","connection_name": "str", "risk_percentage": "float","quantity_multiplier": "float"
         }
-        error = checking_ins_type(d, broker="TRADELOCKER",allow_placeholders=allow_placeholders)
-        if error:
-            return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": "" }
-
-        error = checking_data_type(d, broker="TRADELOCKER",allow_placeholders=allow_placeholders)
-        if error:
-            return {"error": True,"missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""  }
-        error = checking_order_type(d,broker="TRADELOCKER",allow_placeholders=allow_placeholders)
-        if error:
-            return { "error": True,"missing_fields": [], "invalid_fields": error,  "warnings": [], "description": ""  }
+        error1 = checking_ins_type(d, broker="TRADELOCKER",allow_placeholders=allow_placeholders)
+        error2 = checking_data_type(d, broker="TRADELOCKER",allow_placeholders=allow_placeholders)
+        error3 = checking_order_type(d,broker="TRADELOCKER",allow_placeholders=allow_placeholders)
         error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="TRADELOCKER",allow_placeholders=allow_placeholders)
-        if error:
+        if error or error1 or error2 or error3:
+            error = error + error1 + error2 + error3
             return {
             "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
-            "description": "Missing data. Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
+            "description": "Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
         }
     except Exception as e:
         pass
@@ -246,17 +212,14 @@ def validate_and_describe_projectx_alert_json(d: dict,  allow_placeholders: bool
             "token": "str", "account_id": "str","connection_name": "str", "risk_percentage": "float","quantity_multiplier": "float"
         }
 
-        error = checking_data_type(d, broker="PROJECTX",allow_placeholders=allow_placeholders)
-        if error:
-            return {"error": True,"missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""  }
-        error = checking_order_type(d,broker="PROJECTX",allow_placeholders=allow_placeholders)
-        if error:
-            return { "error": True,"missing_fields": [], "invalid_fields": error,  "warnings": [], "description": ""  }
+        error1 = checking_data_type(d, broker="PROJECTX",allow_placeholders=allow_placeholders)
+        error2 = checking_order_type(d,broker="PROJECTX",allow_placeholders=allow_placeholders)
         error = validate_payload(d,ALL_FIELDS,ADVANCE_TP_SL_FIELDS,MULTIPLE_ACCOUNT_FIELDS,broker="PROJECTX",allow_placeholders=allow_placeholders)
-        if error:
+        if error or error1 or error2 :
+            error = error + error1 + error2
             return {
             "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
-            "description": "Missing data. Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
+            "description": "Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
         }
     except Exception as e:
         pass
@@ -285,17 +248,14 @@ def validate_and_describe_binance_alert_json(d: dict,  allow_placeholders: bool 
             "token": "str", "account_id": "str", "connection_name": "str", "risk_percentage": "float", "quantity_multiplier": "float"
         }
 
-        error = checking_data_type(d, broker="BINANCE",allow_placeholders=allow_placeholders)
-        if error:
-            return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""}
-        error = checking_order_type(d, broker="BINANCE",allow_placeholders=allow_placeholders)
-        if error:
-            return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""}
+        error1 = checking_data_type(d, broker="BINANCE",allow_placeholders=allow_placeholders)
+        error2 = checking_order_type(d, broker="BINANCE",allow_placeholders=allow_placeholders)
         error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker="BINANCE",allow_placeholders=allow_placeholders)
-        if error:
+        if error or error1 or error2:
+            error = error + error1 + error2
             return {
                 "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
-                "description": "Missing data. Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
+                "description": "Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
             }
     except Exception as e:
         pass
@@ -323,21 +283,15 @@ def validate_and_describe_matchtrader_alert_json(d: dict,  allow_placeholders: b
         MULTIPLE_ACCOUNT_FIELDS = {
             "token": "str", "account_id": "str", "connection_name": "str", "risk_percentage": "float", "quantity_multiplier": "float"
         }
-        error = checking_ins_type(d, broker="MATCHTRADER",allow_placeholders=allow_placeholders)
-        if error:
-            return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": "" }
-
-        error = checking_data_type(d, broker="MATCHTRADER",allow_placeholders=allow_placeholders)
-        if error:
-            return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""}
-        error = checking_order_type(d, broker="MATCHTRADER",allow_placeholders=allow_placeholders)
-        if error:
-            return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""}
+        error1 = checking_ins_type(d, broker="MATCHTRADER",allow_placeholders=allow_placeholders)
+        error2 = checking_data_type(d, broker="MATCHTRADER",allow_placeholders=allow_placeholders)
+        error3 = checking_order_type(d, broker="MATCHTRADER",allow_placeholders=allow_placeholders)
         error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker="MATCHTRADER",allow_placeholders=allow_placeholders)
-        if error:
+        if error or error1 or error2 or error3:
+            error = error + error1 + error2 + error3
             return {
                 "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
-                "description": "Missing data. Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
+                "description": "Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
             }
     except Exception as e:
         pass
@@ -367,17 +321,14 @@ def validate_and_describe_bybit_alert_json(d: dict,  allow_placeholders: bool = 
         }
 
 
-        error = checking_data_type(d, broker="BYBIT",allow_placeholders=allow_placeholders)
-        if error:
-            return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""}
-        error = checking_order_type(d, broker="BYBIT",allow_placeholders=allow_placeholders)
-        if error:
-            return {"error": True, "missing_fields": [], "invalid_fields": error, "warnings": [], "description": ""}
+        error1 = checking_data_type(d, broker="BYBIT",allow_placeholders=allow_placeholders)
+        error2 = checking_order_type(d, broker="BYBIT",allow_placeholders=allow_placeholders)
         error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker="BYBIT",allow_placeholders=allow_placeholders)
-        if error:
+        if error or error1 or error2:
+            error = error + error1 + error2
             return {
                 "error": True, "missing_fields": [], "invalid_fields": error, "warnings": [],
-                "description": "Missing data. Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
+                "description": "Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
             }
     except Exception as e:
         pass
