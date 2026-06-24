@@ -153,7 +153,7 @@ def checking_data_type(payload,broker,allow_placeholders=False):
 def checking_order_type(payload,broker,allow_placeholders=False):
     errors = []
     order_type = payload.get("order_type", "").upper()
-    if order_type:
+    if order_type == "":
         return []
     if broker == 'TRADOVATE':
         valid_order_types = ["MKT", "LMT", "STP", "STPLMT"]

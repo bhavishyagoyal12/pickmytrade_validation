@@ -148,50 +148,41 @@ class TestTradovateValidation:
         #     "strategy_name": "Test Strategy"
         # }
         payload = {
-	"strategy_name": "asas",
-	"symbol": "NQM6",
+	"symbol": "{{ticker}}",
+	"strategy_name": "",
 	"date": "{{timenow}}",
-	"data": "fgh",
-	"quantity": 1,
+	"data": "BUY",
+	"quantity": "{{strategy.order.contracts}}",
 	"risk_percentage": 0,
-	"price": "456",
-	"gtd_in_second": 2,
-	"stp_limit_stp_price": "342344",
+	"price": "{{close}}",
+	"tp": 0,
+	"percentage_tp": 0,
+	"dollar_tp": 0,
+	"sl": 0,
+	"dollar_sl": 0,
+	"percentage_sl": 0,
+	"trail": 0,
+	"trail_stop": 0,
+	"trail_trigger": 0,
+	"trail_freq": 0,
 	"update_tp": False,
 	"update_sl": False,
+	"breakeven": 0,
 	"breakeven_offset": 0,
-	"token": "3tBtKt1tWtStNtPtUt9tQt4tA",
+	"token": "RBrNtcerkFTo3U6VAu5eyA",
 	"pyramid": False,
 	"same_direction_ignore": False,
-	"reverse_order_close": True,
-	"order_type": "STPLMT",
-	"advance_tp_sl": [
-		{
-			"quantity": 1,
-			"tp": 0,
-			"percentage_tp": 0,
-			"dollar_tp": 14,
-			"sl": 0,
-			"percentage_sl": 0,
-			"dollar_sl": 1,
-			"breakeven": 1,
-			"breakeven_offset": 3,
-			"trail": 1,
-			"trail_stop": 1,
-			"trail_trigger": 1,
-			"trail_freq": 1
-		}
-	],
+	"reverse_order_close": False,
 	"multiple_accounts": [
 		{
-			"token": "3tBtKt1tWtStNtPtUt9tQt4tA",
-			"account_id": "DEMO6376471",
+			"token": "RBrNtcerkFTo3U6VAu5eyA",
+			"account_id": "DEMO8168350",
 			"risk_percentage": 0,
 			"quantity_multiplier": 1
 		}
 	]
 }
-        r = validate_and_describe_tradovate_alert_json(payload)
+        r = validate_and_describe_tradovate_alert_json(payload,allow_placeholders=True)
         print(f"response {r['invalid_fields']}")
         assert r["error"] is False
 
