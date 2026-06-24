@@ -80,8 +80,10 @@ def validate_dict(data, schema, prefix="",broker=None,allow_placeholders=False):
             err = isinstance(value, str) and "{{" in value and "}}" in value
             if not err:
                 if not check_type(value, expected_type):
+                    et = 'numeric' if expected_type in ['int', 'float'] else expected_type
+                    et = 'true/false' if expected_type == 'bool' else et
                     errors.append(
-                        f"{prefix}{field} supports {expected_type} value only"
+                        f"{prefix}{field} supports {et} value only"
                     )
 
                 # errors.append(
@@ -89,8 +91,10 @@ def validate_dict(data, schema, prefix="",broker=None,allow_placeholders=False):
                 # )
         else:
             if not check_type(value, expected_type):
+                et = 'numeric' if expected_type in ['int', 'float'] else expected_type
+                et = 'true/false' if expected_type == 'bool' else et
                 errors.append(
-                    f"{prefix}{field} supports {expected_type} value only"
+                    f"{prefix}{field} supports {et} value only"
                 )
     return errors
 
