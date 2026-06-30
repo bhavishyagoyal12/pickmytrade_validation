@@ -138,7 +138,7 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
             if field not in required_fields and field not in data:
                 continue
 
-        elif field in ('pyramid', 'gtd_in_second', 'risk_percentage', 'quantity_multiplier', 'tp', 'sl', 'dollar_tp', 'dollar_sl', 'percentage_tp', 'percentage_sl') and field not in data:
+        elif field in ('pyramid', 'gtd_in_second', 'risk_percentage', 'quantity_multiplier', 'tp', 'sl', 'dollar_tp', 'dollar_sl', 'percentage_tp', 'percentage_sl', 'advance_tp_sl') and field not in data:
             continue
 
         if field not in data:
