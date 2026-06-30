@@ -25,6 +25,19 @@ class Side(Enum):
     SHORT = "SHORT"
     FLAT = "FLAT"
 
+class InsType(Enum):
+    STOCK = "STOCK"
+    FUTURES = "FUTURES"
+    OPTIONS = "OPTIONS"
+    FOP = "FOP"
+    OPT = "OPT"
+    CRYPTO = "CRYPTO"
+    EQUITY_CFD = "EQUITY_CFD"
+    FOREX = "FOREX"
+    CFD = "CFD"
+    FOREXCFD = "FOREXCFD"
+    PRED = "PRED"
+
 class InstrumentType(Enum):
     STOCK = "STOCK"
     FUTURES = "FUTURES"

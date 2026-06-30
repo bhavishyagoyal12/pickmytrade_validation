@@ -61,17 +61,31 @@ def is_active_value(val):
 def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False):
     errors = []
     
-    # Mutual exclusivity checks for TP
-    tp_fields = ('tp', 'percentage_tp', 'dollar_tp')
-    active_tps = [f for f in tp_fields if f in data and is_active_value(data[f])]
-    if len(active_tps) > 1:
-        errors.append(f"{prefix}Only one TP value can be set (choose either tp, percentage_tp, or dollar_tp)")
+    # Check if update_tp or update_sl is True
+    update_tp_val = data.get("update_tp")
+    update_sl_val = data.get("update_sl")
+    is_update = False
+    if isinstance(update_tp_val, bool) and update_tp_val:
+        is_update = True
+    elif isinstance(update_tp_val, str) and update_tp_val.strip().lower() in ("true", "1"):
+        is_update = True
+    if isinstance(update_sl_val, bool) and update_sl_val:
+        is_update = True
+    elif isinstance(update_sl_val, str) and update_sl_val.strip().lower() in ("true", "1"):
+        is_update = True
 
-    # Mutual exclusivity checks for SL
-    sl_fields = ('sl', 'percentage_sl', 'dollar_sl')
-    active_sls = [f for f in sl_fields if f in data and is_active_value(data[f])]
-    if len(active_sls) > 1:
-        errors.append(f"{prefix}Only one SL value can be set (choose either sl, percentage_sl, or dollar_sl)")
+    if not is_update:
+        # Mutual exclusivity checks for TP
+        tp_fields = ('tp', 'percentage_tp', 'dollar_tp')
+        active_tps = [f for f in tp_fields if f in data and is_active_value(data[f])]
+        if len(active_tps) > 1:
+            errors.append(f"{prefix}Only one TP value can be set (choose either tp, percentage_tp, or dollar_tp)")
+
+        # Mutual exclusivity checks for SL
+        sl_fields = ('sl', 'percentage_sl', 'dollar_sl')
+        active_sls = [f for f in sl_fields if f in data and is_active_value(data[f])]
+        if len(active_sls) > 1:
+            errors.append(f"{prefix}Only one SL value can be set (choose either sl, percentage_sl, or dollar_sl)")
 
     # Mutual exclusivity and presence checks for quantity and risk_percentage
     if "quantity" in schema and "risk_percentage" in schema:
@@ -83,6 +97,14 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
             errors.append(f"{prefix}Either quantity or risk_percentage is required")
 
     for field, expected_type in schema.items():
+        if is_update and field in (
+            'tp', 'percentage_tp', 'dollar_tp',
+            'sl', 'percentage_sl', 'dollar_sl',
+            'trail', 'trail_stop', 'trail_trigger', 'trail_freq',
+            'breakeven', 'breakeven_offset'
+        ):
+            continue
+
         if field == "symbol":
             if field not in data:
                 errors.append(f"{prefix}symbol value is missing")
@@ -98,6 +120,14 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
             continue
 
         elif field in ('trail', 'trail_trigger', 'trail_stop', 'trail_freq'):
+            # Validate type of trail fields immediately if they exist in data
+            if field in data:
+                val = data[field]
+                is_placeholder = allow_placeholders and isinstance(val, str) and "{{" in val and "}}" in val
+                if not is_placeholder:
+                    if isinstance(val, str) or not isinstance(val, (int, float)) or isinstance(val, bool):
+                        errors.append(f"{prefix}{field} supports numeric value only")
+                        
             trail_val = data.get('trail', 0)
             if trail_val == 0 or trail_val is None:
                 continue
@@ -142,6 +172,8 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
             continue
 
         if field not in data:
+            if field in ('update_tp','update_sl','strategy_name','date'):
+                continue
             errors.append(f"{prefix}{field} is missing")
             continue
 
@@ -165,9 +197,31 @@ def validate_payload(payload, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT
     errors = []
     # Top-level validation
     errors.extend(validate_dict(payload, ALL_FIELDS, broker=broker, allow_placeholders=allow_placeholders))
-    # advance_tp_sl validation
+    
+    # Check if update_tp or update_sl is True
+    update_tp_val = payload.get("update_tp")
+    update_sl_val = payload.get("update_sl")
+    is_update = False
+    if isinstance(update_tp_val, bool) and update_tp_val:
+        is_update = True
+    elif isinstance(update_tp_val, str) and update_tp_val.strip().lower() in ("true", "1"):
+        is_update = True
+    if isinstance(update_sl_val, bool) and update_sl_val:
+        is_update = True
+    elif isinstance(update_sl_val, str) and update_sl_val.strip().lower() in ("true", "1"):
+        is_update = True
+
+    # Check if advance_tp_sl exists and is not empty list
     advance_tp_sl = payload.get("advance_tp_sl")
-    if isinstance(advance_tp_sl, list):
+    if not is_update:
+        if isinstance(advance_tp_sl, list) and len(advance_tp_sl) > 0:
+            for f in ('tp', 'sl', 'percentage_tp', 'percentage_sl', 'dollar_tp', 'dollar_sl'):
+                if f in payload and is_active_value(payload[f]):
+                    errors.append("tp/sl already define in advance_tp_sl please remove value from outside")
+                    break
+
+    # advance_tp_sl validation
+    if not is_update and isinstance(advance_tp_sl, list):
         for idx, item in enumerate(advance_tp_sl):
             prefix = f"advance_tp_sl[{idx}]."
             errors.extend(
