@@ -190,6 +190,17 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
                 et = 'numeric' if expected_type in ['int', 'float'] else expected_type
                 et = 'true/false' if expected_type == 'bool' else et
                 errors.append(f"{prefix}{field} supports {et} value only")
+    breakeven_val = data.get("breakeven")
+    breakeven_offset_val = data.get("breakeven_offset")
+    if is_active_value(breakeven_val) and is_active_value(breakeven_offset_val):
+        try:
+            be_float = float(breakeven_val)
+            be_offset_float = float(breakeven_offset_val)
+            if be_offset_float >= be_float:
+                errors.append(f"{prefix}breakeven_offset must be less than breakeven")
+        except (ValueError, TypeError):
+            pass
+
     return errors
 
 
@@ -210,6 +221,25 @@ def validate_payload(payload, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT
         is_update = True
     elif isinstance(update_sl_val, str) and update_sl_val.strip().lower() in ("true", "1"):
         is_update = True
+
+    if is_update:
+        target_keys = ('dollar_tp', 'tp', 'dollar_sl', 'sl', 'percentage_tp', 'percentage_sl', 'breakeven', 'breakeven_offset', 'trail')
+        for k in target_keys:
+            if k in payload:
+                val = payload[k]
+                is_zero = False
+                if val is None:
+                    is_zero = True
+                elif isinstance(val, bool):
+                    is_zero = (val is False)
+                elif isinstance(val, (int, float)):
+                    is_zero = (val == 0 or val == 0.0)
+                elif isinstance(val, str):
+                    val_str = val.strip()
+                    is_zero = (val_str == "0" or val_str == "0.0" or val_str == "")
+                
+                if not is_zero:
+                    errors.append(f"{k} value must be 0 when update_tp or update_sl is true")
 
     # Check if advance_tp_sl exists and is not empty list
     advance_tp_sl = payload.get("advance_tp_sl")
@@ -344,4 +374,38 @@ def checking_order_type(payload, broker, allow_placeholders=False):
         errors.append(
             f"Invalid order_type: '{order_type}'. Valid options are: {', '.join(valid_order_types)}"
         )
+    return errors
+
+
+def check_extra_keys(payload, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS):
+    errors = []
+    if not isinstance(payload, dict):
+        return errors
+    
+    # 1. Top-level keys check
+    allowed_top_level = set(ALL_FIELDS.keys()) | {"broker"}
+    for key in payload:
+        if key not in allowed_top_level:
+            errors.append(f"Extra or invalid key found: '{key}'")
+            
+    # 2. advance_tp_sl keys check
+    advance_tp_sl = payload.get("advance_tp_sl")
+    if advance_tp_sl != None and isinstance(advance_tp_sl, list):
+        allowed_advance = set(ADVANCE_TP_SL_FIELDS.keys())
+        for idx, item in enumerate(advance_tp_sl):
+            if isinstance(item, dict):
+                for key in item:
+                    if key not in allowed_advance:
+                        errors.append(f"advance_tp_sl[{idx}].Extra or invalid key found: '{key}'")
+                        
+    # 3. multiple_accounts keys check
+    multiple_accounts = payload.get("multiple_accounts")
+    if multiple_accounts != None and isinstance(multiple_accounts, list):
+        allowed_multiple = set(MULTIPLE_ACCOUNT_FIELDS.keys())
+        for idx, item in enumerate(multiple_accounts):
+            if isinstance(item, dict):
+                for key in item:
+                    if key not in allowed_multiple:
+                        errors.append(f"multiple_accounts[{idx}].Extra or invalid key found: '{key}'")
+                        
     return errors

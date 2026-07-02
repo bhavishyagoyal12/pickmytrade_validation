@@ -2,7 +2,7 @@ import datetime
 import re
 
 from .enums import Broker
-from .sub_validator import check_raw_payload, validate_payload, checking_order_type, checking_data_type, checking_ins_type
+from .sub_validator import check_raw_payload, validate_payload, checking_order_type, checking_data_type, checking_ins_type, check_extra_keys
 
 
 def generate_description(payload: dict) -> str:
@@ -129,12 +129,13 @@ def validate_and_describe_tradovate_alert_json(d: dict, allow_placeholders: bool
         MULTIPLE_ACCOUNT_FIELDS = {
             "token": "str", "account_id": "str", "risk_percentage": "float", "quantity_multiplier": "float"
         }
+        error0 = check_extra_keys(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS)
         error1 = checking_data_type(d, broker=Broker.TRADOVATE, allow_placeholders=allow_placeholders)
         error2 = checking_order_type(d, broker=Broker.TRADOVATE, allow_placeholders=allow_placeholders)
         error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker=Broker.TRADOVATE, allow_placeholders=allow_placeholders)
-        if error or error1 or error2:
+        if error0 or error or error1 or error2:
             return {
-                "error": True, "missing_fields": [], "invalid_fields": list(dict.fromkeys(error + error1 + error2)), "warnings": [],
+                "error": True, "missing_fields": [], "invalid_fields": list(dict.fromkeys(error0 + error + error1 + error2)), "warnings": [],
                 "description": "Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
             }
     except Exception as e:
@@ -166,12 +167,13 @@ def validate_and_describe_rithmic_alert_json(d: dict, allow_placeholders: bool =
         MULTIPLE_ACCOUNT_FIELDS = {
             "token": "str", "account_id": "str", "risk_percentage": "float", "quantity_multiplier": "float"
         }
+        error0 = check_extra_keys(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS)
         error1 = checking_data_type(d, broker=Broker.RITHMIC, allow_placeholders=allow_placeholders)
         error2 = checking_order_type(d, broker=Broker.RITHMIC, allow_placeholders=allow_placeholders)
         error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker=Broker.RITHMIC, allow_placeholders=allow_placeholders)
-        if error or error1 or error2:
+        if error0 or error or error1 or error2:
             return {
-                "error": True, "missing_fields": [], "invalid_fields": list(dict.fromkeys(error + error1 + error2)), "warnings": [],
+                "error": True, "missing_fields": [], "invalid_fields": list(dict.fromkeys(error0 + error + error1 + error2)), "warnings": [],
                 "description": "Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
             }
     except Exception as e:
@@ -202,13 +204,14 @@ def validate_and_describe_ib_alert_json(d: dict, allow_placeholders: bool = True
             "token": "str", "account_id": "str", "risk_percentage": "float", "quantity_multiplier": "float"
         }
 
+        error0 = check_extra_keys(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS)
         error1 = checking_ins_type(d, broker=Broker.IB, allow_placeholders=allow_placeholders)
         error2 = checking_data_type(d, broker=Broker.IB, allow_placeholders=allow_placeholders)
         error3 = checking_order_type(d, broker=Broker.IB, allow_placeholders=allow_placeholders)
         error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker=Broker.IB, allow_placeholders=allow_placeholders)
-        if error or error1 or error2 or error3:
+        if error0 or error or error1 or error2 or error3:
             return {
-                "error": True, "missing_fields": [], "invalid_fields": list(dict.fromkeys(error + error1 + error2 + error3)), "warnings": [],
+                "error": True, "missing_fields": [], "invalid_fields": list(dict.fromkeys(error0 + error + error1 + error2 + error3)), "warnings": [],
                 "description": "Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
             }
     except Exception as e:
@@ -240,13 +243,14 @@ def validate_and_describe_tradestation_alert_json(d: dict, allow_placeholders: b
         MULTIPLE_ACCOUNT_FIELDS = {
             "token": "str", "account_id": "str", "connection_name": "str", "risk_percentage": "float", "quantity_multiplier": "float"
         }
+        error0 = check_extra_keys(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS)
         error1 = checking_ins_type(d, broker=Broker.TRADESTATION, allow_placeholders=allow_placeholders)
         error2 = checking_data_type(d, broker=Broker.TRADESTATION, allow_placeholders=allow_placeholders)
         error3 = checking_order_type(d, broker=Broker.TRADESTATION, allow_placeholders=allow_placeholders)
         error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker=Broker.TRADESTATION, allow_placeholders=allow_placeholders)
-        if error or error1 or error2 or error3:
+        if error0 or error or error1 or error2 or error3:
             return {
-                "error": True, "missing_fields": [], "invalid_fields": list(dict.fromkeys(error + error1 + error2 + error3)), "warnings": [],
+                "error": True, "missing_fields": [], "invalid_fields": list(dict.fromkeys(error0 + error + error1 + error2 + error3)), "warnings": [],
                 "description": "Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
             }
     except Exception as e:
@@ -278,13 +282,14 @@ def validate_and_describe_tradelocker_alert_json(d: dict, allow_placeholders: bo
         MULTIPLE_ACCOUNT_FIELDS = {
             "token": "str", "account_id": "str", "connection_name": "str", "risk_percentage": "float", "quantity_multiplier": "float"
         }
+        error0 = check_extra_keys(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS)
         error1 = checking_ins_type(d, broker=Broker.TRADELOCKER, allow_placeholders=allow_placeholders)
         error2 = checking_data_type(d, broker=Broker.TRADELOCKER, allow_placeholders=allow_placeholders)
         error3 = checking_order_type(d, broker=Broker.TRADELOCKER, allow_placeholders=allow_placeholders)
         error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker=Broker.TRADELOCKER, allow_placeholders=allow_placeholders)
-        if error or error1 or error2 or error3:
+        if error0 or error or error1 or error2 or error3:
             return {
-                "error": True, "missing_fields": [], "invalid_fields": list(dict.fromkeys(error + error1 + error2 + error3)), "warnings": [],
+                "error": True, "missing_fields": [], "invalid_fields": list(dict.fromkeys(error0 + error + error1 + error2 + error3)), "warnings": [],
                 "description": "Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
             }
     except Exception as e:
@@ -315,12 +320,13 @@ def validate_and_describe_projectx_alert_json(d: dict, allow_placeholders: bool 
             "token": "str", "account_id": "str", "connection_name": "str", "risk_percentage": "float", "quantity_multiplier": "float"
         }
 
+        error0 = check_extra_keys(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS)
         error1 = checking_data_type(d, broker=Broker.PROJECTX, allow_placeholders=allow_placeholders)
         error2 = checking_order_type(d, broker=Broker.PROJECTX, allow_placeholders=allow_placeholders)
         error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker=Broker.PROJECTX, allow_placeholders=allow_placeholders)
-        if error or error1 or error2:
+        if error0 or error or error1 or error2:
             return {
-                "error": True, "missing_fields": [], "invalid_fields": list(dict.fromkeys(error + error1 + error2)), "warnings": [],
+                "error": True, "missing_fields": [], "invalid_fields": list(dict.fromkeys(error0 + error + error1 + error2)), "warnings": [],
                 "description": "Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
             }
     except Exception as e:
@@ -351,12 +357,13 @@ def validate_and_describe_binance_alert_json(d: dict, allow_placeholders: bool =
             "token": "str", "account_id": "str", "connection_name": "str", "risk_percentage": "float", "quantity_multiplier": "float"
         }
 
+        error0 = check_extra_keys(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS)
         error1 = checking_data_type(d, broker=Broker.BINANCE, allow_placeholders=allow_placeholders)
         error2 = checking_order_type(d, broker=Broker.BINANCE, allow_placeholders=allow_placeholders)
         error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker=Broker.BINANCE, allow_placeholders=allow_placeholders)
-        if error or error1 or error2:
+        if error0 or error or error1 or error2:
             return {
-                "error": True, "missing_fields": [], "invalid_fields": list(dict.fromkeys(error + error1 + error2)), "warnings": [],
+                "error": True, "missing_fields": [], "invalid_fields": list(dict.fromkeys(error0 + error + error1 + error2)), "warnings": [],
                 "description": "Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
             }
     except Exception as e:
@@ -386,13 +393,14 @@ def validate_and_describe_matchtrader_alert_json(d: dict, allow_placeholders: bo
         MULTIPLE_ACCOUNT_FIELDS = {
             "token": "str", "account_id": "str", "connection_name": "str", "risk_percentage": "float", "quantity_multiplier": "float"
         }
+        error0 = check_extra_keys(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS)
         error1 = checking_ins_type(d, broker=Broker.MATCHTRADER, allow_placeholders=allow_placeholders)
         error2 = checking_data_type(d, broker=Broker.MATCHTRADER, allow_placeholders=allow_placeholders)
         error3 = checking_order_type(d, broker=Broker.MATCHTRADER, allow_placeholders=allow_placeholders)
         error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker=Broker.MATCHTRADER, allow_placeholders=allow_placeholders)
-        if error or error1 or error2 or error3:
+        if error0 or error or error1 or error2 or error3:
             return {
-                "error": True, "missing_fields": [], "invalid_fields": list(dict.fromkeys(error + error1 + error2 + error3)), "warnings": [],
+                "error": True, "missing_fields": [], "invalid_fields": list(dict.fromkeys(error0 + error + error1 + error2 + error3)), "warnings": [],
                 "description": "Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
             }
     except Exception as e:
@@ -423,12 +431,13 @@ def validate_and_describe_bybit_alert_json(d: dict, allow_placeholders: bool = T
             "token": "str", "account_id": "str", "connection_name": "str", "risk_percentage": "float", "quantity_multiplier": "float"
         }
 
+        error0 = check_extra_keys(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS)
         error1 = checking_data_type(d, broker=Broker.BYBIT, allow_placeholders=allow_placeholders)
         error2 = checking_order_type(d, broker=Broker.BYBIT, allow_placeholders=allow_placeholders)
         error = validate_payload(d, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker=Broker.BYBIT, allow_placeholders=allow_placeholders)
-        if error or error1 or error2:
+        if error0 or error or error1 or error2:
             return {
-                "error": True, "missing_fields": [], "invalid_fields": list(dict.fromkeys(error + error1 + error2)), "warnings": [],
+                "error": True, "missing_fields": [], "invalid_fields": list(dict.fromkeys(error0 + error + error1 + error2)), "warnings": [],
                 "description": "Please ensure your TradingView message strictly starts with '{' and ends with '}' and contains no extraneous text."
             }
     except Exception as e:

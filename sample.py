@@ -217,6 +217,137 @@ TEST_CASES = [
             "order_type": "MKT",
             "token": "valid_token"
         }
+    },
+    {
+        "name": "Update TP Violation (update_tp is true but tp is non-zero)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "update_tp": True,
+            "tp": 10.5,
+            "token": "valid_token"
+        }
+    },
+    {
+        "name": "Update TP Success (update_tp is true and tp is 0)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "update_tp": True,
+            "tp": 0,
+            "token": "valid_token"
+        }
+    },
+    {
+        "name": "Breakeven Offset Violation (offset >= breakeven)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "breakeven": 10.0,
+            "breakeven_offset": 12.0,
+            "token": "valid_token"
+        }
+    },
+    {
+        "name": "Breakeven Offset Success (offset < breakeven)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "breakeven": 10.0,
+            "breakeven_offset": 5.0,
+            "token": "valid_token"
+        }
+    },
+    {
+        "name": "Breakeven Zero Offset Success (offset is 0)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "breakeven": 10.0,
+            "breakeven_offset": 0.0,
+            "token": "valid_token"
+        }
+    },
+    {
+        "name": "Extra Key Violation (invalid top-level key)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token",
+            "invalid_top_key": "hello"
+        }
+    },
+    {
+        "name": "Extra Key Violation (invalid nested key in advance_tp_sl)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token",
+            "advance_tp_sl": [
+                {
+                    "quantity": 1,
+                    "tp": 10.0,
+                    "sl": 5.0,
+                    "invalid_nested_key": "world"
+                }
+            ]
+        }
+    },
+    {
+        "name": "Extra Key Violation (invalid nested key in multiple_accounts)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token",
+            "multiple_accounts": [
+                {
+                    "token": "valid_token",
+                    "account_id": "ACC1",
+                    "quantity_multiplier": 1.0,
+                    "invalid_acc_key": "xyz"
+                }
+            ]
+        }
     }
 ]
 
