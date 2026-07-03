@@ -369,7 +369,8 @@ def validate_and_describe_alert_json(d: dict, raw_payload: str = None, allow_pla
 
     VALID_PLATFORMS = {
         "RITHMIC", "PROJECTX", "IB", "TRADOVATE", "BINANCE",
-        "TRADELOCKER", "TRADESTATION", "MATCHTRADER", "TRADIER", "BYBIT"
+        "TRADELOCKER", "TRADESTATION", "MATCHTRADER", "TRADIER", "BYBIT",
+        "WEBULL",
     }
     raw_platform = str(d.get("platform", "") or "").upper()
     if raw_platform and raw_platform not in VALID_PLATFORMS:

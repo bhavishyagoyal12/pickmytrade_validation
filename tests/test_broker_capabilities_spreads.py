@@ -36,7 +36,7 @@ class TestSpreadCapabilitiesIB:
 class TestNonIBBrokersDoNotSupportSpreadsInV1:
     @pytest.mark.parametrize("platform", [
         "TRADIER", "TRADESTATION", "TRADOVATE", "TRADELOCKER", "PROJECTX",
-        "BINANCE", "BYBIT", "MATCHTRADER", "RITHMIC",
+        "BINANCE", "BYBIT", "MATCHTRADER", "RITHMIC", "WEBULL",
     ])
     def test_broker_does_not_support_spreads(self, platform):
         assert broker_supports_spreads(platform) is False
