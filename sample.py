@@ -219,7 +219,7 @@ TEST_CASES = [
         }
     },
     {
-        "name": "Update TP Violation (update_tp is true but tp is non-zero)",
+        "name": "Update TP Success (update_tp is true and tp is non-zero)",
         "allow_placeholders": True,
         "payload": {
             "strategy_name": "Test Strategy",
@@ -234,7 +234,7 @@ TEST_CASES = [
         }
     },
     {
-        "name": "Update TP Success (update_tp is true and tp is 0)",
+        "name": "Update TP Violation (update_tp is true but tp is zero)",
         "allow_placeholders": True,
         "payload": {
             "strategy_name": "Test Strategy",
@@ -245,6 +245,64 @@ TEST_CASES = [
             "order_type": "MKT",
             "update_tp": True,
             "tp": 0,
+            "token": "valid_token"
+        }
+    },
+    {
+        "name": "Update TP Violation (update_tp is true but tp is missing)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "update_tp": True,
+            "token": "valid_token"
+        }
+    },
+    {
+        "name": "Update SL Success (update_sl is true and sl is non-zero)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "update_sl": True,
+            "sl": 5.0,
+            "token": "valid_token"
+        }
+    },
+    {
+        "name": "Update SL Violation (update_sl is true but sl is zero)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "update_sl": True,
+            "sl": 0,
+            "token": "valid_token"
+        }
+    },
+    {
+        "name": "Update SL Violation (update_sl is true but sl is missing)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "update_sl": True,
             "token": "valid_token"
         }
     },
@@ -347,6 +405,45 @@ TEST_CASES = [
                     "invalid_acc_key": "xyz"
                 }
             ]
+        }
+    },
+    {
+        "name": "Flat/Close Alert with Valid full_closed and comment (Should Pass)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "CLOSE",
+            "token": "valid_token",
+            "full_closed": True,
+            "comment": "closing position due to target reached"
+        }
+    },
+    {
+        "name": "Flat/Close Alert with Invalid full_closed Type (Should Fail)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "CLOSE",
+            "token": "valid_token",
+            "full_closed": "yes",
+            "comment": "closing"
+        }
+    },
+    {
+        "name": "Flat/Close Alert with Invalid comment Type (Should Fail)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "CLOSE",
+            "token": "valid_token",
+            "full_closed": False,
+            "comment": 12345
         }
     }
 ]

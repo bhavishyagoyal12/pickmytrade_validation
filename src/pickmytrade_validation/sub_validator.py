@@ -64,15 +64,19 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
     # Check if update_tp or update_sl is True
     update_tp_val = data.get("update_tp")
     update_sl_val = data.get("update_sl")
-    is_update = False
+    is_update_tp = False
     if isinstance(update_tp_val, bool) and update_tp_val:
-        is_update = True
+        is_update_tp = True
     elif isinstance(update_tp_val, str) and update_tp_val.strip().lower() in ("true", "1"):
-        is_update = True
+        is_update_tp = True
+        
+    is_update_sl = False
     if isinstance(update_sl_val, bool) and update_sl_val:
-        is_update = True
+        is_update_sl = True
     elif isinstance(update_sl_val, str) and update_sl_val.strip().lower() in ("true", "1"):
-        is_update = True
+        is_update_sl = True
+        
+    is_update = is_update_tp or is_update_sl
 
     if not is_update:
         # Mutual exclusivity checks for TP
@@ -97,13 +101,18 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
             errors.append(f"{prefix}Either quantity or risk_percentage is required")
 
     for field, expected_type in schema.items():
-        if is_update and field in (
-            'tp', 'percentage_tp', 'dollar_tp',
-            'sl', 'percentage_sl', 'dollar_sl',
-            'trail', 'trail_stop', 'trail_trigger', 'trail_freq',
-            'breakeven', 'breakeven_offset'
-        ):
-            continue
+        if is_update:
+            skip = False
+            if field in ('trail', 'trail_stop', 'trail_trigger', 'trail_freq', 'breakeven', 'breakeven_offset'):
+                skip = True
+            elif field in ('tp', 'percentage_tp', 'dollar_tp'):
+                if not is_update_tp or field != 'tp':
+                    skip = True
+            elif field in ('sl', 'percentage_sl', 'dollar_sl'):
+                if not is_update_sl or field != 'sl':
+                    skip = True
+            if skip:
+                continue
 
         if field == "symbol":
             if field not in data:
@@ -168,7 +177,7 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
             if field not in required_fields and field not in data:
                 continue
 
-        elif field in ('pyramid', 'gtd_in_second', 'risk_percentage', 'quantity_multiplier', 'tp', 'sl', 'dollar_tp', 'dollar_sl', 'percentage_tp', 'percentage_sl', 'advance_tp_sl') and field not in data:
+        elif field in ('pyramid', 'gtd_in_second', 'risk_percentage', 'quantity_multiplier', 'tp', 'sl', 'dollar_tp', 'dollar_sl', 'percentage_tp', 'percentage_sl', 'advance_tp_sl', 'full_closed', 'comment') and field not in data:
             continue
 
         if field not in data:
@@ -212,18 +221,22 @@ def validate_payload(payload, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT
     # Check if update_tp or update_sl is True
     update_tp_val = payload.get("update_tp")
     update_sl_val = payload.get("update_sl")
-    is_update = False
+    is_update_tp = False
     if isinstance(update_tp_val, bool) and update_tp_val:
-        is_update = True
+        is_update_tp = True
     elif isinstance(update_tp_val, str) and update_tp_val.strip().lower() in ("true", "1"):
-        is_update = True
+        is_update_tp = True
+        
+    is_update_sl = False
     if isinstance(update_sl_val, bool) and update_sl_val:
-        is_update = True
+        is_update_sl = True
     elif isinstance(update_sl_val, str) and update_sl_val.strip().lower() in ("true", "1"):
-        is_update = True
+        is_update_sl = True
+        
+    is_update = is_update_tp or is_update_sl
 
     if is_update:
-        target_keys = ('dollar_tp', 'tp', 'dollar_sl', 'sl', 'percentage_tp', 'percentage_sl', 'breakeven', 'breakeven_offset', 'trail')
+        target_keys = ('dollar_tp', 'dollar_sl', 'percentage_tp', 'percentage_sl', 'breakeven', 'breakeven_offset', 'trail')
         for k in target_keys:
             if k in payload:
                 val = payload[k]
@@ -240,6 +253,14 @@ def validate_payload(payload, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT
                 
                 if not is_zero:
                     errors.append(f"{k} value must be 0 when update_tp or update_sl is true")
+                    
+        if is_update_tp:
+            if 'tp' in payload and not is_active_value(payload.get('tp')):
+                errors.append("tp value should not be zero when update_tp is true")
+                
+        if is_update_sl:
+            if 'sl' in payload and not is_active_value(payload.get('sl')):
+                errors.append("sl value should not be zero when update_sl is true")
 
     # Check if advance_tp_sl exists and is not empty list
     advance_tp_sl = payload.get("advance_tp_sl")
