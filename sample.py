@@ -445,6 +445,53 @@ TEST_CASES = [
             "full_closed": False,
             "comment": 12345
         }
+    },
+    {
+        "name": "Ignored Extra Keys (created_first, main_token_type, reverse_action, tif, by_socket, watch_user, main_order_id should be ignored) (Should Pass)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token",
+            "created_first": "2026-07-09",
+            "main_token_type": "demo",
+            "reverse_action": True,
+            "tif": "GTC",
+            "by_socket": True,
+            "watch_user": "user123",
+            "main_order_id": "ord567"
+        }
+    },
+    {
+        "name": "Payload without Multiple Accounts (Should Pass)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token"
+        }
+    },
+    {
+        "name": "Payload with Empty Multiple Accounts Violation (Should Fail)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token",
+            "multiple_accounts": []
+        }
     }
 ]
 

@@ -177,7 +177,7 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
             if field not in required_fields and field not in data:
                 continue
 
-        elif field in ('pyramid', 'gtd_in_second', 'risk_percentage', 'quantity_multiplier', 'tp', 'sl', 'dollar_tp', 'dollar_sl', 'percentage_tp', 'percentage_sl', 'advance_tp_sl', 'full_closed', 'comment') and field not in data:
+        elif field in ('pyramid', 'gtd_in_second', 'risk_percentage', 'quantity_multiplier', 'tp', 'sl', 'dollar_tp', 'dollar_sl', 'percentage_tp', 'percentage_sl', 'advance_tp_sl', 'full_closed', 'comment', 'multiple_accounts') and field not in data:
             continue
 
         if field not in data:
@@ -292,28 +292,29 @@ def validate_payload(payload, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT
                 errors.append(f"{prefix}Either sl, percentage_sl, or dollar_sl is required")
                 
     # multiple_accounts validation
-    multiple_accounts = payload.get("multiple_accounts")
-    if not isinstance(multiple_accounts, list) or len(multiple_accounts) == 0:
-        errors.append("multiple_accounts must contain at least one account")
-    else:
-        for idx, item in enumerate(multiple_accounts):
-            prefix = f"multiple_accounts[{idx}]."
-            errors.extend(
-                validate_dict(
-                    item,
-                    MULTIPLE_ACCOUNT_FIELDS,
-                    prefix=prefix, allow_placeholders=allow_placeholders
+    if "multiple_accounts" in payload:
+        multiple_accounts = payload.get("multiple_accounts")
+        if not isinstance(multiple_accounts, list) or len(multiple_accounts) == 0:
+            errors.append("multiple_accounts must contain at least one account")
+        else:
+            for idx, item in enumerate(multiple_accounts):
+                prefix = f"multiple_accounts[{idx}]."
+                errors.extend(
+                    validate_dict(
+                        item,
+                        MULTIPLE_ACCOUNT_FIELDS,
+                        prefix=prefix, allow_placeholders=allow_placeholders
+                    )
                 )
-            )
-            # Custom validation for multiple_accounts data
-            token = item.get("token")
-            if token is None or str(token).strip() == "":
-                errors.append(f"{prefix}token value is empty")
-                
-            risk_pct = item.get("risk_percentage")
-            qty_mult = item.get("quantity_multiplier")
-            if not is_active_value(risk_pct) and not is_active_value(qty_mult):
-                errors.append(f"{prefix}Either risk_percentage or quantity_multiplier is required")
+                # Custom validation for multiple_accounts data
+                token = item.get("token")
+                if token is None or str(token).strip() == "":
+                    errors.append(f"{prefix}token value is empty")
+                    
+                risk_pct = item.get("risk_percentage")
+                qty_mult = item.get("quantity_multiplier")
+                if not is_active_value(risk_pct) and not is_active_value(qty_mult):
+                    errors.append(f"{prefix}Either risk_percentage or quantity_multiplier is required")
     return errors
 
 
@@ -406,6 +407,8 @@ def check_extra_keys(payload, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT
     # 1. Top-level keys check
     allowed_top_level = set(ALL_FIELDS.keys()) | {"broker"}
     for key in payload:
+        if key in ("created_first", "main_token_type", "reverse_action", "tif", "by_socket", "watch_user", "main_order_id"):
+            continue
         if key not in allowed_top_level:
             errors.append(f"Extra or invalid key found: '{key}'")
             
