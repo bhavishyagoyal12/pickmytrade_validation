@@ -11,19 +11,12 @@ message that names the offending field so a TradingView user looking at
 a webhook 400 response can fix their alert.
 """
 import datetime
+from .broker_capabilities import (
+    broker_supports_spreads,
+    get_supported_spread_strategies,
+    get_max_spread_legs,
+)
 
-try:
-    from .broker_capabilities import (
-        broker_supports_spreads,
-        get_supported_spread_strategies,
-        get_max_spread_legs,
-    )
-except ImportError:  # pragma: no cover - flat-import fallback like validator.py
-    from broker_capabilities import (
-        broker_supports_spreads,
-        get_supported_spread_strategies,
-        get_max_spread_legs,
-    )
 
 
 # ---------------------------------------------------------------------------
