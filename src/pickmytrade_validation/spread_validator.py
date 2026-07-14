@@ -514,6 +514,14 @@ def _validate_tp_sl(name: str, block) -> None:
         return
     if not isinstance(block, dict):
         raise SpreadValidationError(f"Field '{name}' must be an object")
+    # Enforce the type label. The Java gateway hardcodes the percent-vs-multiple
+    # convention by basis+role, so a mismatched label would be silently misread
+    # downstream. Only one type is supported per role in v1.
+    expected_type = "percent_of_credit" if name == "tp" else "multiple_of_credit"
+    if block.get("type") is not None and block["type"] != expected_type:
+        raise SpreadValidationError(
+            f"Field '{name}.type' must be {expected_type!r}, got: {block['type']!r}"
+        )
     if block.get("value") is not None:
         v = block["value"]
         if not _is_number(v) or v < 0:

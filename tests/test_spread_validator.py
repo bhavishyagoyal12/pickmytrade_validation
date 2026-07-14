@@ -460,6 +460,20 @@ class TestTpSlExitSafety:
         with pytest.raises(SpreadValidationError, match="tp.value"):
             validate_spread_payload(payload(tp={"type": "percent_of_credit", "value": -1}))
 
+    def test_valid_tp_sl_types_ok(self):
+        assert validate_spread_payload(payload(
+            tp={"type": "percent_of_credit", "value": 50},
+            sl={"type": "multiple_of_credit", "value": 2},
+        )) is None
+
+    def test_bad_tp_type_rejects(self):
+        with pytest.raises(SpreadValidationError, match="tp.type"):
+            validate_spread_payload(payload(tp={"type": "bogus", "value": 50}))
+
+    def test_bad_sl_type_rejects(self):
+        with pytest.raises(SpreadValidationError, match="sl.type"):
+            validate_spread_payload(payload(sl={"type": "bogus", "value": 2}))
+
     def test_bad_exit_dte_rejects(self):
         with pytest.raises(SpreadValidationError, match="exit.dte"):
             validate_spread_payload(payload(exit={"dte": -3}))
