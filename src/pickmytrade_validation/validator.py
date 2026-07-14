@@ -118,7 +118,7 @@ def validate_and_describe_tradovate_alert_json(d: dict, allow_placeholders: bool
             "dollar_tp": "float", "sl": "float", "percentage_sl": "float", "dollar_sl": "float", "trail": "float",
             "trail_stop": "float", "trail_trigger": "float", "trail_freq": "float", "update_tp": "bool", "update_sl": "bool", "breakeven": "float",
             "breakeven_offset": "float", "token": "str", "pyramid": "bool", "same_direction_ignore": "bool", "reverse_order_close": "bool", "order_type": "str",
-            "advance_tp_sl": "list", "multiple_accounts": "list", "full_closed": "bool", "comment": "str"
+            "advance_tp_sl": "list", "multiple_accounts": "list", "full_closed": "bool", "comment": "str", "account_id": "str", "duplicate_position_allow": "bool"
         }
         ADVANCE_TP_SL_FIELDS = {
             "quantity": "int", "tp": "float", "percentage_tp": "float",
@@ -156,7 +156,7 @@ def validate_and_describe_rithmic_alert_json(d: dict, allow_placeholders: bool =
             "tp": "float", "percentage_tp": "float",
             "dollar_tp": "float", "sl": "float", "percentage_sl": "float", "dollar_sl": "float", "breakeven": "float",
             "breakeven_offset": "float", "token": "str", "reverse_order_close": "bool", "order_type": "str",
-            "advance_tp_sl": "list", "multiple_accounts": "list", "full_closed": "bool", "comment": "str"
+            "advance_tp_sl": "list", "multiple_accounts": "list", "full_closed": "bool", "comment": "str", "account_id": "str", "duplicate_position_allow": "bool"
         }
         ADVANCE_TP_SL_FIELDS = {
             "quantity": "int", "tp": "float", "percentage_tp": "float",
@@ -193,7 +193,7 @@ def validate_and_describe_ib_alert_json(d: dict, allow_placeholders: bool = True
             "quantity": "int", "risk_percentage": "int", "price": "float", "tp": "float", "percentage_tp": "float",
             "dollar_tp": "float", "sl": "float", "percentage_sl": "float", "dollar_sl": "float",
             "breakeven_offset": "float", "token": "str", "reverse_order_close": "bool", "order_type": "str", "option_type": "str",
-            "advance_tp_sl": "list", "multiple_accounts": "list", "full_closed": "bool", "comment": "str"
+            "advance_tp_sl": "list", "multiple_accounts": "list", "full_closed": "bool", "comment": "str", "account_id": "str", "duplicate_position_allow": "bool"
         }
         ADVANCE_TP_SL_FIELDS = {
             "quantity": "int", "tp": "float", "percentage_tp": "float",
@@ -233,7 +233,7 @@ def validate_and_describe_tradestation_alert_json(d: dict, allow_placeholders: b
             "dollar_tp": "float", "sl": "float", "percentage_sl": "float", "dollar_sl": "float", "trail": "float",
             "trail_stop": "float", "trail_trigger": "float", "trail_freq": "float", "breakeven": "float",
             "breakeven_offset": "float", "token": "str", "reverse_order_close": "bool", "order_type": "str", "inst_type": "str",
-            "option_type": "str", "expiry_date": "str", "order_strike": "float", "advance_tp_sl": "list", "multiple_accounts": "list", "full_closed": "bool", "comment": "str"
+            "option_type": "str", "expiry_date": "str", "order_strike": "float", "advance_tp_sl": "list", "multiple_accounts": "list", "full_closed": "bool", "comment": "str", "account_id": "str", "duplicate_position_allow": "bool"
         }
         ADVANCE_TP_SL_FIELDS = {
             "quantity": "int", "tp": "float", "percentage_tp": "float",
@@ -272,7 +272,7 @@ def validate_and_describe_tradelocker_alert_json(d: dict, allow_placeholders: bo
             "dollar_tp": "float", "sl": "float", "percentage_sl": "float", "dollar_sl": "float", "trail": "float",
             "trail_stop": "float", "trail_trigger": "float", "trail_freq": "float", "breakeven": "float",
             "breakeven_offset": "float", "token": "str", "reverse_order_close": "bool", "order_type": "str", "inst_type": "str",
-            "option_type": "str", "expiry_date": "str", "order_strike": "float", "multiple_accounts": "list", "full_closed": "bool", "comment": "str"
+            "option_type": "str", "expiry_date": "str", "order_strike": "float", "multiple_accounts": "list", "full_closed": "bool", "comment": "str", "account_id": "str", "duplicate_position_allow": "bool"
         }
         ADVANCE_TP_SL_FIELDS = {
             "quantity": "int", "tp": "float", "percentage_tp": "float",
@@ -309,7 +309,7 @@ def validate_and_describe_projectx_alert_json(d: dict, allow_placeholders: bool 
             "quantity": "int", "risk_percentage": "int", "price": "float", "gtd_in_second": "int",
             "stp_limit_stp_price": "float", "tp": "float", "percentage_tp": "float",
             "dollar_tp": "float", "sl": "float", "percentage_sl": "float", "dollar_sl": "float", "token": "str", "reverse_order_close": "bool", "order_type": "str",
-            "option_type": "str", "expiry_date": "str", "order_strike": "float", "multiple_accounts": "list", "full_closed": "bool", "comment": "str"
+            "option_type": "str", "expiry_date": "str", "order_strike": "float", "multiple_accounts": "list", "full_closed": "bool", "comment": "str", "account_id": "str", "duplicate_position_allow": "bool"
         }
         ADVANCE_TP_SL_FIELDS = {
             "quantity": "int", "tp": "float", "percentage_tp": "float",
@@ -346,7 +346,7 @@ def validate_and_describe_binance_alert_json(d: dict, allow_placeholders: bool =
             "quantity": "int", "risk_percentage": "int", "price": "float", "gtd_in_second": "int",
             "stp_limit_stp_price": "float", "tp": "float", "percentage_tp": "float",
             "dollar_tp": "float", "sl": "float", "percentage_sl": "float", "dollar_sl": "float", "token": "str", "reverse_order_close": "bool", "order_type": "str",
-            "option_type": "str", "expiry_date": "str", "order_strike": "float", "multiple_accounts": "list", "full_closed": "bool", "comment": "str"
+            "option_type": "str", "expiry_date": "str", "order_strike": "float", "multiple_accounts": "list", "full_closed": "bool", "comment": "str", "account_id": "str", "duplicate_position_allow": "bool"
         }
         ADVANCE_TP_SL_FIELDS = {
             "quantity": "int", "tp": "float", "percentage_tp": "float",
@@ -383,7 +383,7 @@ def validate_and_describe_matchtrader_alert_json(d: dict, allow_placeholders: bo
             "quantity": "int", "risk_percentage": "int", "price": "float", "gtd_in_second": "int",
             "stp_limit_stp_price": "float", "tp": "float", "percentage_tp": "float", "ins_type": "str",
             "dollar_tp": "float", "sl": "float", "percentage_sl": "float", "dollar_sl": "float", "token": "str", "reverse_order_close": "bool",
-            "order_type": "str", "option_type": "str", "expiry_date": "str", "order_strike": "float", "multiple_accounts": "list", "full_closed": "bool", "comment": "str"
+            "order_type": "str", "option_type": "str", "expiry_date": "str", "order_strike": "float", "multiple_accounts": "list", "full_closed": "bool", "comment": "str", "account_id": "str", "duplicate_position_allow": "bool"
         }
         ADVANCE_TP_SL_FIELDS = {
             "quantity": "int", "tp": "float", "percentage_tp": "float",
@@ -420,7 +420,7 @@ def validate_and_describe_bybit_alert_json(d: dict, allow_placeholders: bool = T
             "quantity": "int", "risk_percentage": "int", "price": "float", "gtd_in_second": "int",
             "stp_limit_stp_price": "float", "tp": "float", "percentage_tp": "float",
             "dollar_tp": "float", "sl": "float", "percentage_sl": "float", "dollar_sl": "float", "token": "str", "reverse_order_close": "bool",
-            "order_type": "str", "option_type": "str", "expiry_date": "str", "order_strike": "float", "multiple_accounts": "list", "full_closed": "bool", "comment": "str"
+            "order_type": "str", "option_type": "str", "expiry_date": "str", "order_strike": "float", "multiple_accounts": "list", "full_closed": "bool", "comment": "str", "account_id": "str", "duplicate_position_allow": "bool"
         }
         ADVANCE_TP_SL_FIELDS = {
             "quantity": "int", "tp": "float", "percentage_tp": "float",

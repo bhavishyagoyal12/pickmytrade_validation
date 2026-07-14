@@ -98,7 +98,10 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
         if len(active_qty_risk) > 1:
             errors.append(f"{prefix}Only one of quantity or risk_percentage can be set. Please use any one.")
         elif len(active_qty_risk) == 0:
-            errors.append(f"{prefix}Either quantity or risk_percentage is required")
+            if prefix == "" and "multiple_accounts" in data:
+                errors.append("atleast one value required")
+            else:
+                errors.append(f"{prefix}Either quantity or risk_percentage is required")
 
     for field, expected_type in schema.items():
         if is_update:
@@ -120,7 +123,7 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
                 continue
             # Fall through to check type if present
 
-        elif field == "account_id" and 'account_id' in data and data['account_id'] == "":
+        elif field == "account_id" and 'account_id' in data and (data['account_id'] is None or str(data['account_id']).strip() == ""):
             errors.append(f"{prefix}account_id value is missing")
             continue
 
@@ -177,7 +180,7 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
             if field not in required_fields and field not in data:
                 continue
 
-        elif field in ('pyramid', 'gtd_in_second', 'risk_percentage', 'quantity_multiplier', 'tp', 'sl', 'dollar_tp', 'dollar_sl', 'percentage_tp', 'percentage_sl', 'advance_tp_sl', 'full_closed', 'comment', 'multiple_accounts') and field not in data:
+        elif field in ('pyramid', 'gtd_in_second', 'risk_percentage', 'quantity_multiplier', 'tp', 'sl', 'dollar_tp', 'dollar_sl', 'percentage_tp', 'percentage_sl', 'advance_tp_sl', 'full_closed', 'comment', 'multiple_accounts', 'account_id', 'duplicate_position_allow') and field not in data:
             continue
 
         if field not in data:
@@ -201,14 +204,17 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
                 errors.append(f"{prefix}{field} supports {et} value only")
     breakeven_val = data.get("breakeven")
     breakeven_offset_val = data.get("breakeven_offset")
-    if is_active_value(breakeven_val) and is_active_value(breakeven_offset_val):
-        try:
-            be_float = float(breakeven_val)
-            be_offset_float = float(breakeven_offset_val)
-            if be_offset_float >= be_float:
-                errors.append(f"{prefix}breakeven_offset must be less than breakeven")
-        except (ValueError, TypeError):
-            pass
+    if is_active_value(breakeven_val):
+        if not any(is_active_value(data.get(f)) for f in ('dollar_tp', 'sl', 'percentage_sl', 'dollar_sl')):
+            errors.append(f"{prefix}Either dollar_tp, sl, or percentage_sl is required for breakeven")
+        if is_active_value(breakeven_offset_val):
+            try:
+                be_float = float(breakeven_val)
+                be_offset_float = float(breakeven_offset_val)
+                if be_offset_float >= be_float:
+                    errors.append(f"{prefix}breakeven_offset must be less than breakeven")
+            except (ValueError, TypeError):
+                pass
 
     return errors
 

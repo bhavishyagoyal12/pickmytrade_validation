@@ -492,6 +492,166 @@ TEST_CASES = [
             "token": "valid_token",
             "multiple_accounts": []
         }
+    },
+    {
+        "name": "Top-level Account ID Valid (Should Pass)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token",
+            "account_id": "ACC123"
+        }
+    },
+    {
+        "name": "Top-level Account ID Empty Violation (Should Fail)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token",
+            "account_id": "   "
+        }
+    },
+    {
+        "name": "Top-level Duplicate Position Allow Valid (Should Pass)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token",
+            "duplicate_position_allow": True
+        }
+    },
+    {
+        "name": "Top-level Duplicate Position Allow Invalid Type Violation (Should Fail)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token",
+            "duplicate_position_allow": "yes"
+        }
+    },
+    {
+        "name": "Multiple Accounts and Valid Quantity (Should Pass)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token",
+            "multiple_accounts": [
+                {
+                    "token": "valid_token",
+                    "account_id": "ACC1",
+                    "quantity_multiplier": 1.0
+                }
+            ]
+        }
+    },
+    {
+        "name": "Multiple Accounts and Both Quantity and Risk Percentage Zero Violation (Should Fail)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 0,
+            "risk_percentage": 0,
+            "order_type": "MKT",
+            "token": "valid_token",
+            "multiple_accounts": [
+                {
+                    "token": "valid_token",
+                    "account_id": "ACC1",
+                    "quantity_multiplier": 1.0
+                }
+            ]
+        }
+    },
+    {
+        "name": "Multiple Accounts and Both Quantity and Risk Percentage Missing Violation (Should Fail)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "order_type": "MKT",
+            "token": "valid_token",
+            "multiple_accounts": [
+                {
+                    "token": "valid_token",
+                    "account_id": "ACC1",
+                    "quantity_multiplier": 1.0
+                }
+            ]
+        }
+    },
+    {
+        "name": "Breakeven with Stop Loss Valid (Should Pass)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token",
+            "breakeven": 10.5,
+            "sl": 5.0
+        }
+    },
+    {
+        "name": "Breakeven with Dollar TP Valid (Should Pass)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token",
+            "breakeven": 10.5,
+            "dollar_tp": 100.0
+        }
+    },
+    {
+        "name": "Breakeven without Stop Loss or Dollar TP Violation (Should Fail)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token",
+            "breakeven": 10.5
+        }
     }
 ]
 
