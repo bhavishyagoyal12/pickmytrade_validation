@@ -29,6 +29,12 @@
 # Spread fields (added 2026-05): supports_spreads, supported_spread_strategies,
 # max_spread_legs — used by /v3/add-option-spread to gate inbound spread
 # payloads. v1 ships IB only.
+#
+# NOTE (2026-07-14, unified per-leg schema): supported_spread_strategies is now
+# DOC-ONLY / informational. The spread validator no longer gates on it — every
+# leg carries its own strike selector so any shape can be built, and
+# strategy_type is a free label. Only supports_spreads and max_spread_legs are
+# still used as hard gates. Do not re-introduce a strategy allow-list gate here.
 # ============================================================
 
 BROKER_CAPABILITIES = {
