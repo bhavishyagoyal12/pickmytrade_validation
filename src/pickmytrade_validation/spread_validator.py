@@ -21,6 +21,23 @@ a webhook 400 response can fix their alert.
 """
 import datetime
 import re
+
+# zoneinfo backs the exit.tz IANA check. It ships in the stdlib (3.9+) but on
+# some platforms (notably Windows without the `tzdata` package) it has no tz
+# database, so a valid zone like "America/New_York" would fail to load. Probe
+# once at import time; when the DB is unavailable, fall back to a shape-only
+# check (non-empty string containing "/") instead of rejecting real zones.
+try:
+    from zoneinfo import ZoneInfo
+    try:
+        ZoneInfo("America/New_York")
+        _TZ_DB_AVAILABLE = True
+    except Exception:  # pragma: no cover - platform without tz database
+        _TZ_DB_AVAILABLE = False
+except ImportError:  # pragma: no cover - zoneinfo missing (<3.9)
+    ZoneInfo = None
+    _TZ_DB_AVAILABLE = False
+
 from .broker_capabilities import (
     broker_supports_spreads,
     # get_supported_spread_strategies,  # No longer used as a gate — see comment 15.
@@ -59,6 +76,17 @@ VALID_STRIKE_UNITS = ("usd", "steps")
 VALID_PRICING_MODES = ("mid", "best_fill", "manual")
 VALID_SLIPPAGE_UNITS = ("usd", "ticks")
 VALID_TIF = ("DAY", "GTC")
+
+# The only keys a multiple_accounts[] entry may carry. A misspelled key (e.g.
+# "quantity_multipler") would otherwise be silently ignored and the account
+# would fan out at the wrong size, so anything outside this set is rejected.
+MULTIPLE_ACCOUNTS_ENTRY_KEYS = frozenset(
+    ("token", "connection_name", "account_id", "quantity_multiplier", "fixed_quantity")
+)
+
+# Sane upper bound for expiration.dte — anything beyond ~3 years of calendar
+# days is almost certainly a typo (e.g. a date accidentally sent as a dte).
+MAX_DTE = 1000
 
 # exit.time_of_day feeds the shared exit_at_time_ny scheduler column, which the
 # legacy path guards with a strict HH:MM regex. Accept ONLY 24-hour HH:MM or
@@ -191,6 +219,10 @@ def _validate_expiration(expiration, where: str = "expiration") -> None:
             raise SpreadValidationError(
                 f"Field '{where}.dte' must be a non-negative integer, got: {dte!r}"
             )
+        if dte > MAX_DTE:
+            raise SpreadValidationError(
+                f"Field '{where}.dte' must be at most {MAX_DTE}, got: {dte!r}"
+            )
 
     elif mode == "date":
         if "date" not in expiration:
@@ -220,6 +252,16 @@ def _validate_expiration(expiration, where: str = "expiration") -> None:
             raise SpreadValidationError(
                 f"Field '{where}.alias' has invalid value '{alias}' — "
                 f"expected one of: {', '.join(VALID_EXPIRATION_ALIASES)}"
+            )
+
+    # dte_tolerance is an optional +/- day window around the resolved expiry.
+    # When present it must be a non-negative integer.
+    if expiration.get("dte_tolerance") is not None:
+        tol = expiration["dte_tolerance"]
+        if not isinstance(tol, int) or isinstance(tol, bool) or tol < 0:
+            raise SpreadValidationError(
+                f"Field '{where}.dte_tolerance' must be a non-negative integer, "
+                f"got: {tol!r}"
             )
 
 
@@ -476,6 +518,15 @@ def _validate_multiple_accounts(payload: dict) -> None:
             raise SpreadValidationError(
                 f"Field 'multiple_accounts[{idx}]' must be an object"
             )
+        # Reject unknown keys so a misspelled field (e.g. "quantity_multipler")
+        # is caught here instead of being silently ignored downstream.
+        unknown = set(entry) - MULTIPLE_ACCOUNTS_ENTRY_KEYS
+        if unknown:
+            raise SpreadValidationError(
+                f"Field 'multiple_accounts[{idx}]' has unknown key(s): "
+                f"{', '.join(sorted(unknown))} — allowed keys are: "
+                f"{', '.join(sorted(MULTIPLE_ACCOUNTS_ENTRY_KEYS))}"
+            )
         for field in ("token", "connection_name", "account_id"):
             val = entry.get(field)
             if not isinstance(val, str) or not val.strip():
@@ -553,8 +604,25 @@ def _validate_exit(exit_block) -> None:
                 f"Field 'exit.time_of_day' must be 24-hour HH:MM or HH:MM:SS, "
                 f"got: {tod!r}"
             )
-    if exit_block.get("tz") is not None and not isinstance(exit_block["tz"], str):
-        raise SpreadValidationError("Field 'exit.tz' must be a string")
+    if exit_block.get("tz") is not None:
+        tz = exit_block["tz"]
+        if not isinstance(tz, str) or not tz.strip():
+            raise SpreadValidationError(
+                "Field 'exit.tz' must be a non-empty IANA timezone string "
+                "(e.g. 'America/New_York')"
+            )
+        if _TZ_DB_AVAILABLE:
+            try:
+                ZoneInfo(tz)
+            except Exception:
+                raise SpreadValidationError(
+                    f"Field 'exit.tz' is not a valid IANA timezone, got: {tz!r}"
+                )
+        elif "/" not in tz:
+            # No tz database available — fall back to a shape-only check.
+            raise SpreadValidationError(
+                f"Field 'exit.tz' is not a valid IANA timezone, got: {tz!r}"
+            )
 
 
 def _validate_safety(safety) -> None:

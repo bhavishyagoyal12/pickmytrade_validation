@@ -342,6 +342,37 @@ class TestLegExpiration:
 
 
 # --------------------------------------------------------------------------
+# Expiration dte upper bound + dte_tolerance
+# --------------------------------------------------------------------------
+
+class TestExpirationBounds:
+    def test_dte_at_bound_ok(self):
+        assert validate_spread_payload(payload(expiration={"mode": "dte", "dte": 1000})) is None
+
+    def test_dte_over_bound_rejects(self):
+        with pytest.raises(SpreadValidationError, match="at most 1000"):
+            validate_spread_payload(payload(expiration={"mode": "dte", "dte": 1001}))
+
+    def test_negative_dte_still_rejects(self):
+        with pytest.raises(SpreadValidationError, match="dte"):
+            validate_spread_payload(payload(expiration={"mode": "dte", "dte": -1}))
+
+    def test_good_dte_tolerance_ok(self):
+        assert validate_spread_payload(
+            payload(expiration={"mode": "dte", "dte": 45, "dte_tolerance": 7})
+        ) is None
+
+    def test_negative_dte_tolerance_rejects(self):
+        with pytest.raises(SpreadValidationError, match="dte_tolerance"):
+            validate_spread_payload(payload(expiration={"mode": "dte", "dte": 45, "dte_tolerance": -1}))
+
+    @pytest.mark.parametrize("tol", [1.5, "7", True])
+    def test_non_int_dte_tolerance_rejects(self, tol):
+        with pytest.raises(SpreadValidationError, match="dte_tolerance"):
+            validate_spread_payload(payload(expiration={"mode": "dte", "dte": 45, "dte_tolerance": tol}))
+
+
+# --------------------------------------------------------------------------
 # Pricing
 # --------------------------------------------------------------------------
 
@@ -450,6 +481,21 @@ class TestMultipleAccounts:
         with pytest.raises(SpreadValidationError, match="quantity_multiplier"):
             validate_spread_payload(p)
 
+    def test_misspelled_sizing_key_rejects(self):
+        # A typo like "quantity_multipler" must be caught, not silently ignored.
+        p = payload(multiple_accounts=[
+            {"token": "T", "connection_name": "C", "account_id": "A", "quantity_multipler": 2},
+        ])
+        with pytest.raises(SpreadValidationError, match="unknown key"):
+            validate_spread_payload(p)
+
+    def test_unknown_extra_key_rejects(self):
+        p = payload(multiple_accounts=[
+            {"token": "T", "connection_name": "C", "account_id": "A", "surprise": 1},
+        ])
+        with pytest.raises(SpreadValidationError, match="unknown key"):
+            validate_spread_payload(p)
+
 
 # --------------------------------------------------------------------------
 # tp / sl / exit / safety thin checks
@@ -490,6 +536,20 @@ class TestTpSlExitSafety:
     def test_non_string_time_of_day_rejects(self):
         with pytest.raises(SpreadValidationError, match="time_of_day"):
             validate_spread_payload(payload(exit={"dte": 21, "time_of_day": 1555}))
+
+    def test_good_exit_tz_ok(self):
+        assert validate_spread_payload(
+            payload(exit={"dte": 21, "time_of_day": "15:55", "tz": "America/New_York"})
+        ) is None
+
+    @pytest.mark.parametrize("tz", ["", "   ", "Not/AZone", "Mars/Olympus"])
+    def test_bad_exit_tz_rejects(self, tz):
+        with pytest.raises(SpreadValidationError, match="tz"):
+            validate_spread_payload(payload(exit={"dte": 21, "tz": tz}))
+
+    def test_non_string_exit_tz_rejects(self):
+        with pytest.raises(SpreadValidationError, match="tz"):
+            validate_spread_payload(payload(exit={"dte": 21, "tz": 5}))
 
     def test_bad_safety_max_legs_type_rejects(self):
         with pytest.raises(SpreadValidationError, match="safety.max_legs"):
