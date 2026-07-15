@@ -241,13 +241,13 @@ def check_placeholders_when_disabled(data, prefix=""):
     if isinstance(data, dict):
         for k, v in data.items():
             if isinstance(v, str) and "{{" in v:
-                errors.append(f"{prefix}{k} value cannot contain placeholders when allow_placeholders is false")
+                errors.append(f"{prefix}{k} wrong value found")
             elif isinstance(v, dict):
                 errors.extend(check_placeholders_when_disabled(v, prefix=f"{prefix}{k}."))
             elif isinstance(v, list):
                 for idx, item in enumerate(v):
                     if isinstance(item, str) and "{{" in item:
-                        errors.append(f"{prefix}{k}[{idx}] value cannot contain placeholders when allow_placeholders is false")
+                        errors.append(f"{prefix}{k}[{idx}] wrong value found")
                     else:
                         errors.extend(check_placeholders_when_disabled(item, prefix=f"{prefix}{k}[{idx}]."))
     return errors
