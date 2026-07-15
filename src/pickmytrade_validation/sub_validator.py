@@ -219,8 +219,28 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
     return errors
 
 
+def check_none_values(data, prefix=""):
+    errors = []
+    if isinstance(data, dict):
+        for k, v in data.items():
+            if v is None:
+                errors.append(f"{prefix}{k} value cannot be null")
+            elif isinstance(v, dict):
+                errors.extend(check_none_values(v, prefix=f"{prefix}{k}."))
+            elif isinstance(v, list):
+                for idx, item in enumerate(v):
+                    if item is None:
+                        errors.append(f"{prefix}{k}[{idx}] value cannot be null")
+                    else:
+                        errors.extend(check_none_values(item, prefix=f"{prefix}{k}[{idx}]."))
+    return errors
+
+
 def validate_payload(payload, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker, allow_placeholders=False):
     errors = []
+    # Check for None / null values in any key
+    errors.extend(check_none_values(payload))
+    
     # Top-level validation
     errors.extend(validate_dict(payload, ALL_FIELDS, broker=broker, allow_placeholders=allow_placeholders))
     

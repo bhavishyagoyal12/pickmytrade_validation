@@ -691,6 +691,59 @@ TEST_CASES = [
             "order_type": "{{strategy.order.type}}",
             "token": "valid_token"
         }
+    },
+    {
+        "name": "Top-level None Value Violation (Should Fail)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": None,
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token"
+        }
+    },
+    {
+        "name": "Nested None Value in advance_tp_sl Violation (Should Fail)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token",
+            "advance_tp_sl": [
+                {
+                    "quantity": 1,
+                    "tp": None,
+                    "sl": 5.0
+                }
+            ]
+        }
+    },
+    {
+        "name": "Nested None Value in multiple_accounts Violation (Should Fail)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token",
+            "multiple_accounts": [
+                {
+                    "token": None,
+                    "account_id": "ACC1",
+                    "quantity_multiplier": 1.0
+                }
+            ]
+        }
     }
 ]
 
