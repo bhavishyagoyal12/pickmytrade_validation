@@ -744,6 +744,32 @@ TEST_CASES = [
                 }
             ]
         }
+    },
+    {
+        "name": "Placeholder with {{ in symbol Violation (Should Fail)",
+        "allow_placeholders": False,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "{{ticker}}",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token"
+        }
+    },
+    {
+        "name": "Placeholder with {{ in date Violation (Should Fail)",
+        "allow_placeholders": False,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "{{time}}",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token"
+        }
     }
 ]
 

@@ -236,10 +236,31 @@ def check_none_values(data, prefix=""):
     return errors
 
 
+def check_placeholders_when_disabled(data, prefix=""):
+    errors = []
+    if isinstance(data, dict):
+        for k, v in data.items():
+            if isinstance(v, str) and "{{" in v:
+                errors.append(f"{prefix}{k} value cannot contain placeholders when allow_placeholders is false")
+            elif isinstance(v, dict):
+                errors.extend(check_placeholders_when_disabled(v, prefix=f"{prefix}{k}."))
+            elif isinstance(v, list):
+                for idx, item in enumerate(v):
+                    if isinstance(item, str) and "{{" in item:
+                        errors.append(f"{prefix}{k}[{idx}] value cannot contain placeholders when allow_placeholders is false")
+                    else:
+                        errors.extend(check_placeholders_when_disabled(item, prefix=f"{prefix}{k}[{idx}]."))
+    return errors
+
+
 def validate_payload(payload, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker, allow_placeholders=False):
     errors = []
     # Check for None / null values in any key
     errors.extend(check_none_values(payload))
+    
+    # Check if placeholders exist when allow_placeholders is False
+    if not allow_placeholders:
+        errors.extend(check_placeholders_when_disabled(payload))
     
     # Top-level validation
     errors.extend(validate_dict(payload, ALL_FIELDS, broker=broker, allow_placeholders=allow_placeholders))
