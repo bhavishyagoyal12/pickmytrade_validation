@@ -652,6 +652,45 @@ TEST_CASES = [
             "token": "valid_token",
             "breakeven": 10.5
         }
+    },
+    {
+        "name": "Placeholder with {{ in data (Should Pass)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "{{strategy.order.action}}",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token"
+        }
+    },
+    {
+        "name": "Placeholder with {{ in data Violation (Should Fail)",
+        "allow_placeholders": False,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "{{strategy.order.action}}",
+            "quantity": 1,
+            "order_type": "MKT",
+            "token": "valid_token"
+        }
+    },
+    {
+        "name": "Placeholder with {{ in order_type (Should Pass)",
+        "allow_placeholders": True,
+        "payload": {
+            "strategy_name": "Test Strategy",
+            "symbol": "ES",
+            "date": "2026-06-30",
+            "data": "BUY",
+            "quantity": 1,
+            "order_type": "{{strategy.order.type}}",
+            "token": "valid_token"
+        }
     }
 ]
 

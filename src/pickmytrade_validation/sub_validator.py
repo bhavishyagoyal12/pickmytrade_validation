@@ -135,7 +135,7 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
             # Validate type of trail fields immediately if they exist in data
             if field in data:
                 val = data[field]
-                is_placeholder = allow_placeholders and isinstance(val, str) and "{{" in val and "}}" in val
+                is_placeholder = allow_placeholders and isinstance(val, str) and "{{" in val
                 if not is_placeholder:
                     if isinstance(val, str) or not isinstance(val, (int, float)) or isinstance(val, bool):
                         errors.append(f"{prefix}{field} supports numeric value only")
@@ -191,7 +191,7 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
 
         value = data[field]
         if allow_placeholders:
-            err = isinstance(value, str) and "{{" in value and "}}" in value
+            err = isinstance(value, str) and "{{" in value
             if not err:
                 if not check_type(value, expected_type):
                     et = 'numeric' if expected_type in ['int', 'float'] else expected_type
@@ -326,7 +326,10 @@ def validate_payload(payload, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT
 
 def checking_ins_type(payload, broker, allow_placeholders=False):
     errors = []
-    ins_type = (payload.get("ins_type") or payload.get("inst_type") or "").upper()
+    raw_ins_type = payload.get("ins_type") or payload.get("inst_type") or ""
+    if allow_placeholders and isinstance(raw_ins_type, str) and ("{?" in raw_ins_type or "{{" in raw_ins_type):
+        return []
+    ins_type = str(raw_ins_type).upper()
     
     # Normalize broker to Broker enum
     if isinstance(broker, str):
@@ -371,7 +374,10 @@ def checking_ins_type(payload, broker, allow_placeholders=False):
 
 def checking_data_type(payload, broker, allow_placeholders=False):
     errors = []
-    side_val = (payload.get("data") or "").upper()
+    raw_side = payload.get("data") or ""
+    if allow_placeholders and isinstance(raw_side, str) and "{{" in raw_side:
+        return []
+    side_val = str(raw_side).upper()
     valid_sides = [s.value for s in Side]
     if side_val not in valid_sides:
         errors.append(
@@ -382,9 +388,12 @@ def checking_data_type(payload, broker, allow_placeholders=False):
 
 def checking_order_type(payload, broker, allow_placeholders=False):
     errors = []
-    order_type = (payload.get("order_type") or "").upper()
-    if order_type == "":
+    raw_order_type = payload.get("order_type") or ""
+    if raw_order_type == "":
         return []
+    if allow_placeholders and isinstance(raw_order_type, str) and "{{" in raw_order_type:
+        return []
+    order_type = str(raw_order_type).upper()
     
     # Normalize broker to Broker enum
     if isinstance(broker, str):
