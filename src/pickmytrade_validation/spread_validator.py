@@ -559,26 +559,145 @@ def _validate_multiple_accounts(payload: dict) -> None:
                 )
 
 
-def _validate_tp_sl(name: str, block) -> None:
-    # Thin shape check — the whole-spread take-profit / stop-loss block.
-    if block is None:
+# tp/sl `type` labels, keyed by the spread's basis (credit vs debit). The label
+# carries BOTH a role and a basis word: tp reports a PERCENT of the open basis
+# (take profit at N% of the credit/debit) and sl reports a MULTIPLE of it (stop
+# at Nx). The Java bracket applies the value against the resolved credit/debit
+# reference and REJECTS a label whose basis word contradicts the resolved basis
+# (BASIS_TYPE_CONTRADICTION). A credit spread therefore needs the credit-word
+# labels and a debit spread the debit-word labels. We accept the basis-matching
+# label for each and reject a mismatch here with a clear message rather than
+# forcing one basis. A missing type is value-only and is accepted for either
+# basis (Java falls back to its tasty defaults for it).
+_TP_TYPE_BY_BASIS = {"credit": "percent_of_credit", "debit": "percent_of_debit"}
+_SL_TYPE_BY_BASIS = {"credit": "multiple_of_credit", "debit": "multiple_of_debit"}
+
+
+def _tp_sl_type_basis(label):
+    """Return 'credit' or 'debit' for a tp/sl type label, or None when the label
+    carries no credit/debit word (an unrecognised or value-only label)."""
+    if not isinstance(label, str):
+        return None
+    low = label.lower()
+    if "credit" in low:
+        return "credit"
+    if "debit" in low:
+        return "debit"
+    return None
+
+
+def _spread_basis_from_pricing(pricing):
+    """Resolve the spread's basis (credit / debit) from the SIGNED pricing when
+    it is knowable up front, else None.
+
+    Mirrors the Java gateway, which sets basis = signedOpen < 0 ? CREDIT : DEBIT
+    from the resolved open price. manual mode carries that exact signed net in
+    limit_price; otherwise the signed max_net cap declares the intended basis
+    (debit positive, credit negative). A mid/best_fill order with no max_net
+    only prices at fill time, so the basis is not knowable here (returns None)
+    and the tp/sl label's own basis word is used instead.
+    """
+    if not isinstance(pricing, dict):
+        return None
+    if pricing.get("mode") == "manual":
+        lp = pricing.get("limit_price")
+        if _is_number(lp) and lp != 0:
+            return "credit" if lp < 0 else "debit"
+    mn = pricing.get("max_net")
+    if _is_number(mn) and mn != 0:
+        return "credit" if mn < 0 else "debit"
+    return None
+
+
+def _validate_tp_sl(payload) -> None:
+    # Whole-spread take-profit / stop-loss blocks. Shape-check each block, then
+    # confirm the tp/sl `type` labels match the spread's basis so a debit spread
+    # can carry a debit-basis typed bracket (value-only kept working for both).
+    tp = payload.get("tp")
+    sl = payload.get("sl")
+
+    for name, block in (("tp", tp), ("sl", sl)):
+        if block is None:
+            continue
+        if not isinstance(block, dict):
+            raise SpreadValidationError(f"Field '{name}' must be an object")
+        if block.get("value") is not None:
+            v = block["value"]
+            if not _is_number(v) or v < 0:
+                raise SpreadValidationError(
+                    f"Field '{name}.value' must be a non-negative number, got: {v!r}"
+                )
+
+    tp_type = tp.get("type") if isinstance(tp, dict) else None
+    sl_type = sl.get("type") if isinstance(sl, dict) else None
+
+    # Both value-only: nothing more to check (Java uses the tasty defaults).
+    if tp_type is None and sl_type is None:
         return
-    if not isinstance(block, dict):
-        raise SpreadValidationError(f"Field '{name}' must be an object")
-    # Enforce the type label. The Java gateway hardcodes the percent-vs-multiple
-    # convention by basis+role, so a mismatched label would be silently misread
-    # downstream. Only one type is supported per role in v1.
-    expected_type = "percent_of_credit" if name == "tp" else "multiple_of_credit"
-    if block.get("type") is not None and block["type"] != expected_type:
+
+    tp_basis = _tp_sl_type_basis(tp_type) if tp_type is not None else None
+    sl_basis = _tp_sl_type_basis(sl_type) if sl_type is not None else None
+
+    # A present label with no credit/debit word is not a supported type.
+    if tp_type is not None and tp_basis is None:
         raise SpreadValidationError(
-            f"Field '{name}.type' must be {expected_type!r}, got: {block['type']!r}"
+            f"Field 'tp.type' must be one of "
+            f"{sorted(_TP_TYPE_BY_BASIS.values())} (or omit it for a value-only "
+            f"bracket), got: {tp_type!r}"
         )
-    if block.get("value") is not None:
-        v = block["value"]
-        if not _is_number(v) or v < 0:
-            raise SpreadValidationError(
-                f"Field '{name}.value' must be a non-negative number, got: {v!r}"
-            )
+    if sl_type is not None and sl_basis is None:
+        raise SpreadValidationError(
+            f"Field 'sl.type' must be one of "
+            f"{sorted(_SL_TYPE_BY_BASIS.values())} (or omit it for a value-only "
+            f"bracket), got: {sl_type!r}"
+        )
+
+    # tp and sl must agree on the basis: Java applies ONE basis to both children,
+    # so a credit tp paired with a debit sl is a contradiction.
+    if tp_basis is not None and sl_basis is not None and tp_basis != sl_basis:
+        raise SpreadValidationError(
+            f"Fields 'tp.type' and 'sl.type' declare conflicting bases "
+            f"({tp_basis!r} vs {sl_basis!r}); both must be credit-oriented or "
+            f"both debit-oriented"
+        )
+
+    # Effective basis: prefer the signed pricing (matches how Java resolves it),
+    # otherwise fall back to the basis the tp/sl labels themselves declare. At
+    # least one label carries a basis here (the value-only case returned above),
+    # so `basis` is never None.
+    pricing_basis = _spread_basis_from_pricing(payload.get("pricing"))
+    basis = pricing_basis or tp_basis or sl_basis
+
+    # If the signed pricing resolves a basis and a label declares the opposite,
+    # that is exactly the mis-scale the Java bracket rejects with
+    # BASIS_TYPE_CONTRADICTION. Reject up front with a clear message.
+    if pricing_basis is not None:
+        for name, lbl_basis in (("tp", tp_basis), ("sl", sl_basis)):
+            if lbl_basis is not None and lbl_basis != pricing_basis:
+                raise SpreadValidationError(
+                    f"Field '{name}.type' is {lbl_basis}-oriented but the "
+                    f"spread's pricing resolves to a {pricing_basis} basis; use "
+                    f"the {pricing_basis} type (tp "
+                    f"{_TP_TYPE_BY_BASIS[pricing_basis]!r} / sl "
+                    f"{_SL_TYPE_BY_BASIS[pricing_basis]!r}) or omit 'type' for a "
+                    f"value-only bracket"
+                )
+
+    # Pin the role per basis: tp is the PERCENT-of-basis label and sl the
+    # MULTIPLE-of-basis label (one label per role in v1, matching Java's tasty
+    # convention). This also catches a role swap, e.g. a multiple label on tp.
+    expected_tp = _TP_TYPE_BY_BASIS[basis]
+    expected_sl = _SL_TYPE_BY_BASIS[basis]
+    if tp_type is not None and tp_type != expected_tp:
+        raise SpreadValidationError(
+            f"Field 'tp.type' must be {expected_tp!r} for a {basis} spread, "
+            f"got: {tp_type!r}"
+        )
+    if sl_type is not None and sl_type != expected_sl:
+        raise SpreadValidationError(
+            f"Field 'sl.type' must be {expected_sl!r} for a {basis} spread, "
+            f"got: {sl_type!r}"
+        )
 
 
 def _validate_exit(exit_block) -> None:
@@ -797,9 +916,8 @@ def validate_spread_payload(payload: dict) -> None:
     # 11. Multi-account fan-out entries.
     _validate_multiple_accounts(payload)
 
-    # 12. Thin tp / sl / exit shape checks.
-    _validate_tp_sl("tp", payload.get("tp"))
-    _validate_tp_sl("sl", payload.get("sl"))
+    # 12. tp / sl basis-matched type checks + exit shape.
+    _validate_tp_sl(payload)
     _validate_exit(payload.get("exit"))
 
 

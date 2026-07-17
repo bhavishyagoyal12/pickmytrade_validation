@@ -396,9 +396,16 @@ class TestPricing:
             validate_spread_payload(payload(pricing={"mode": "manual"}))
 
     def test_manual_with_limit_ok(self):
-        assert validate_spread_payload(payload(pricing={"mode": "manual", "limit_price": 1.25})) is None
+        # Pure pricing check: a positive limit is a DEBIT open, and the base
+        # payload's leftover credit tp/sl would (correctly) be a basis
+        # contradiction against it, so drop them to isolate the pricing rule.
+        p = payload(pricing={"mode": "manual", "limit_price": 1.25})
+        p.pop("tp", None)
+        p.pop("sl", None)
+        assert validate_spread_payload(p) is None
 
     def test_manual_negative_limit_ok(self):
+        # A negative limit is a CREDIT open, consistent with the base credit tp/sl.
         assert validate_spread_payload(payload(pricing={"mode": "manual", "limit_price": -1.25})) is None
 
     def test_signed_credit_max_net_ok(self):
@@ -558,6 +565,109 @@ class TestTpSlExitSafety:
     def test_bad_safety_flag_rejects(self):
         with pytest.raises(SpreadValidationError, match="risk_defined_only"):
             validate_spread_payload(payload(safety={"max_legs": 4, "risk_defined_only": "yes"}))
+
+
+# --------------------------------------------------------------------------
+# BUG-3 — basis-appropriate tp/sl type acceptance. A DEBIT spread must accept
+# the debit-basis typed bracket (percent_of_debit / multiple_of_debit), a CREDIT
+# spread the credit-basis types, value-only both, and a basis mismatch must be
+# rejected with a clear message (Java rejects the mismatch downstream with
+# BASIS_TYPE_CONTRADICTION). Signed max_net declares the basis up front (credit
+# negative, debit positive); mid pricing with no max_net leaves the label's own
+# basis word to declare it.
+# --------------------------------------------------------------------------
+
+_CREDIT_PRICING = {"mode": "best_fill", "slippage": 0.05,
+                   "slippage_unit": "usd", "max_net": -1.20}
+_DEBIT_PRICING = {"mode": "best_fill", "slippage": 0.05,
+                  "slippage_unit": "usd", "max_net": 1.20}
+_MID_PRICING = {"mode": "mid"}
+
+
+class TestTpSlBasis:
+    def test_debit_typed_tp_sl_accepted_on_debit_spread(self):
+        assert validate_spread_payload(payload(
+            pricing=_DEBIT_PRICING,
+            tp={"type": "percent_of_debit", "value": 150},
+            sl={"type": "multiple_of_debit", "value": 0.5},
+        )) is None
+
+    def test_credit_typed_tp_sl_accepted_on_credit_spread(self):
+        assert validate_spread_payload(payload(
+            pricing=_CREDIT_PRICING,
+            tp={"type": "percent_of_credit", "value": 50},
+            sl={"type": "multiple_of_credit", "value": 2},
+        )) is None
+
+    def test_credit_type_on_debit_spread_rejected(self):
+        with pytest.raises(SpreadValidationError, match="credit-oriented"):
+            validate_spread_payload(payload(
+                pricing=_DEBIT_PRICING,
+                tp={"type": "percent_of_credit", "value": 50},
+                sl={"type": "multiple_of_credit", "value": 2},
+            ))
+
+    def test_debit_type_on_credit_spread_rejected(self):
+        with pytest.raises(SpreadValidationError, match="debit-oriented"):
+            validate_spread_payload(payload(
+                pricing=_CREDIT_PRICING,
+                tp={"type": "percent_of_debit", "value": 150},
+                sl={"type": "multiple_of_debit", "value": 0.5},
+            ))
+
+    def test_value_only_tp_sl_accepted_credit(self):
+        assert validate_spread_payload(payload(
+            pricing=_CREDIT_PRICING,
+            tp={"value": 50}, sl={"value": 2},
+        )) is None
+
+    def test_value_only_tp_sl_accepted_debit(self):
+        assert validate_spread_payload(payload(
+            pricing=_DEBIT_PRICING,
+            tp={"value": 150}, sl={"value": 0.5},
+        )) is None
+
+    def test_debit_typed_accepted_when_basis_from_labels_only(self):
+        # mid pricing with no max_net: basis is not knowable up front, so the
+        # debit-word labels themselves declare the basis and are accepted.
+        assert validate_spread_payload(payload(
+            pricing=_MID_PRICING,
+            tp={"type": "percent_of_debit", "value": 150},
+            sl={"type": "multiple_of_debit", "value": 0.5},
+        )) is None
+
+    def test_mixed_basis_tp_sl_rejected(self):
+        with pytest.raises(SpreadValidationError, match="conflicting bases"):
+            validate_spread_payload(payload(
+                pricing=_MID_PRICING,
+                tp={"type": "percent_of_credit", "value": 50},
+                sl={"type": "multiple_of_debit", "value": 0.5},
+            ))
+
+    def test_role_swap_rejected_on_tp(self):
+        # tp must be the percent-of-basis label, not the multiple label.
+        with pytest.raises(SpreadValidationError, match="tp.type"):
+            validate_spread_payload(payload(
+                pricing=_CREDIT_PRICING,
+                tp={"type": "multiple_of_credit", "value": 2},
+                sl={"type": "multiple_of_credit", "value": 2},
+            ))
+
+    def test_manual_positive_limit_price_is_debit_basis(self):
+        # manual mode: the signed limit_price is the open price; positive => debit.
+        assert validate_spread_payload(payload(
+            pricing={"mode": "manual", "limit_price": 1.25},
+            tp={"type": "percent_of_debit", "value": 150},
+            sl={"type": "multiple_of_debit", "value": 0.5},
+        )) is None
+
+    def test_manual_positive_limit_price_rejects_credit_type(self):
+        with pytest.raises(SpreadValidationError, match="credit-oriented"):
+            validate_spread_payload(payload(
+                pricing={"mode": "manual", "limit_price": 1.25},
+                tp={"type": "percent_of_credit", "value": 50},
+                sl={"type": "multiple_of_credit", "value": 2},
+            ))
 
 
 # --------------------------------------------------------------------------
