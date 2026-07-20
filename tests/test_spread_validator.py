@@ -387,9 +387,13 @@ class TestPricing:
         with pytest.raises(SpreadValidationError, match="pricing.mode"):
             validate_spread_payload(payload(pricing={"mode": "smart"}))
 
-    def test_market_mode_now_rejects(self):
-        with pytest.raises(SpreadValidationError, match="pricing.mode"):
-            validate_spread_payload(payload(pricing={"mode": "market"}))
+    def test_market_mode_accepted_as_best_fill_alias(self):
+        # "market" is a plain-language alias for best_fill (the combo
+        # marketable-limit path). It is accepted and normalized in place so
+        # downstream sees only the canonical best_fill mode.
+        p = payload(pricing={"mode": "market"})
+        assert validate_spread_payload(p) is None
+        assert p["pricing"]["mode"] == "best_fill"
 
     def test_manual_without_limit_rejects(self):
         with pytest.raises(SpreadValidationError, match="limit_price"):

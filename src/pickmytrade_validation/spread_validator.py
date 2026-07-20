@@ -74,6 +74,15 @@ VALID_STRIKE_UNITS = ("usd", "steps")
 
 # Pricing / order controls.
 VALID_PRICING_MODES = ("mid", "best_fill", "manual")
+
+# Plain-language aliases that normalize onto a canonical pricing mode BEFORE the
+# restricted-set check. "market" is accepted as a friendly alias for best_fill:
+# on a combo there is no single market order, and best_fill crosses the natural
+# touch (a marketable limit), which is the closest equivalent to a market order
+# for a spread. Aliases are rewritten in place so downstream only sees a
+# canonical mode.
+PRICING_MODE_ALIASES = {"market": "best_fill"}
+
 VALID_SLIPPAGE_UNITS = ("usd", "ticks")
 VALID_TIF = ("DAY", "GTC")
 
@@ -456,6 +465,13 @@ def _validate_pricing(pricing) -> None:
             "Field 'pricing.mode' is required (one of: "
             + ", ".join(VALID_PRICING_MODES) + ")"
         )
+    # Normalize a friendly alias (e.g. "market" -> "best_fill") onto its
+    # canonical mode BEFORE the restricted-set check. Written back into the
+    # shared pricing dict so every later consumer of the payload (the DTO, the
+    # Java envelope) sees only the canonical mode.
+    if mode in PRICING_MODE_ALIASES:
+        mode = PRICING_MODE_ALIASES[mode]
+        pricing["mode"] = mode
     if mode not in VALID_PRICING_MODES:
         raise SpreadValidationError(
             f"Field 'pricing.mode' has invalid value '{mode}' — "
