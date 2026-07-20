@@ -18,10 +18,23 @@
 #   - BINANCE:      TRAILING_STOP_MARKET order type, trailingDelta param
 #   - BYBIT:        trailingStop param via Set Trading Stop endpoint
 #   - MATCHTRADER:  Trailing Stop Loss feature (platform-level support)
+#   - WEBULL:       Connect API — US stocks + options only. Equity orders:
+#                   MARKET/LIMIT/STOP/STOP_LIMIT (NO trailing); option orders:
+#                   LIMIT/STOP/STOP_LIMIT priced via option_premium (no MARKET
+#                   — market-data quote entitlement not granted). TIF DAY/GTC.
+#                   Atomic OTO/OTOCO TP/SL brackets (entry + children in ONE
+#                   place call); resting TP/SL children modifiable via
+#                   order/replace (update_tp/update_sl). No futures/crypto.
 #
 # Spread fields (added 2026-05): supports_spreads, supported_spread_strategies,
 # max_spread_legs — used by /v3/add-option-spread to gate inbound spread
 # payloads. v1 ships IB only.
+#
+# NOTE (2026-07-14, unified per-leg schema): supported_spread_strategies is now
+# DOC-ONLY / informational. The spread validator no longer gates on it — every
+# leg carries its own strike selector so any shape can be built, and
+# strategy_type is a free label. Only supports_spreads and max_spread_legs are
+# still used as hard gates. Do not re-introduce a strategy allow-list gate here.
 # ============================================================
 
 BROKER_CAPABILITIES = {
@@ -170,6 +183,26 @@ BROKER_CAPABILITIES = {
         "supported_spread_strategies":  [],
         "max_spread_legs":              0,
         "allowed_inst_types":           ["CFD", "FOREX", "FOREXCFD"],
+    },
+    "WEBULL": {
+        "supports_trailing":            False,
+        "supports_trail_stop":          False,
+        "supports_trail_trigger":       False,
+        "supports_trail_freq":          False,
+        "supports_breakeven":           False,
+        "supports_options":             True,
+        "supports_update_tp_sl":        True,
+        "supports_advance_tp_sl":       False,
+        "supports_spreads":             False,
+        "supported_spread_strategies":  [],
+        "max_spread_legs":              0,
+        # OPT is the validator's canonical option inst_type (option_type /
+        # expiry_date / order_strike are only permitted with OPT); the equity
+        # spellings mirror what the trade path's normalize_asset_class accepts.
+        "allowed_inst_types":           ["STK", "STOCK", "EQUITY", "OPT"],
+        "notes": "Webull Connect API. US stocks + options only (no futures/crypto). "
+                 "Options priced via option_premium (no MARKET option entries); "
+                 "TIF DAY/GTC; atomic OTO/OTOCO TP/SL brackets."
     },
 }
 

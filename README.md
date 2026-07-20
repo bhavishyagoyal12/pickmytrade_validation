@@ -14,17 +14,17 @@ This package validates and describes webhook alert payloads before they reach th
 ## Supported Brokers
 
 | Broker | Instrument Types | Trailing Stop | Options |
-|---|---|---|---|
-| Rithmic | FUT, FOP | Yes | Yes |
-| Interactive Brokers | STK, FUT, OPT, FOP, CASH | Yes | Yes |
-| Tradovate | FUT | Yes | Yes |
-| TradeStation | STOCKS, FUTURES, OPTIONS | Yes | Yes |
-| Tradier | STK, OPT | No | Yes |
-| TradeLocker | EQUITY_CFD, FOREX, CRYPTO | Yes | No |
-| ProjectX (TopstepX) | FUT | Yes | No |
-| Binance | CRYPTO, FUTURES | Yes | No |
-| Bybit | CRYPTO, FUTURES | Yes | No |
-| MatchTrader | CFD, FOREX | Yes | No |
+|---|---|---|---------|
+| Rithmic | FUT, FOP | Yes | Yes     |
+| Interactive Brokers | STK, FUT, OPT, FOP, CASH | Yes | Yes     |
+| Tradovate | FUT | Yes | No       |
+| TradeStation | STOCKS, FUTURES, OPTIONS | Yes | Yes     |
+| Tradier | STK, OPT | No | Yes     |
+| TradeLocker | EQUITY_CFD, FOREX, CRYPTO | Yes | No      |
+| ProjectX (TopstepX) | FUT | Yes | No      |
+| Binance | CRYPTO, FUTURES | Yes | No      |
+| Bybit | CRYPTO, FUTURES | Yes | No      |
+| MatchTrader | CFD, FOREX | Yes | No      |
 
 ## Installation
 
@@ -34,59 +34,7 @@ pip install git+https://github.com/bhavishyagoyal12/pickmytrade_validation.git
 
 ## Quick Start
 
-```python
-from pickmytrade_validation import validate_and_describe_alert_json
 
-payload = {
-    "token": "your_webhook_token",
-    "symbol": "ES",
-    "quantity": 2,
-    "data": "BUY",
-    "platform": "RITHMIC",
-    "order_type": "MKT",
-    "inst_type": "FUT"
-}
-
-result = validate_and_describe_alert_json(payload)
-
-if not result["error"]:
-    print(result["description"])
-    # Output: MARKET BUY order on ES for 2 contract(s) via RITHMIC. No TP or SL configured.
-else:
-    print(result["invalid_fields"])
-```
-
-### Validate with Stop Loss and Take Profit
-
-```python
-result = validate_and_describe_alert_json({
-    "token": "your_webhook_token",
-    "symbol": "NQ",
-    "quantity": 1,
-    "data": "SELL",
-    "platform": "TRADOVATE",
-    "order_type": "LMT",
-    "inst_type": "FUT",
-    "price": 18500,
-    "tp": 18400,
-    "sl": 18550
-})
-```
-
-### Validate with TradingView Placeholders
-
-```python
-result = validate_and_describe_alert_json({
-    "token": "your_webhook_token",
-    "symbol": "ES",
-    "quantity": "{{strategy.market_position_size}}",
-    "data": "{{strategy.order.action}}",
-    "platform": "RITHMIC",
-    "order_type": "LMT",
-    "inst_type": "FUT",
-    "price": "{{close}}"
-})
-```
 
 ## API Reference
 
@@ -94,35 +42,14 @@ result = validate_and_describe_alert_json({
 
 **Parameters:**
 - `payload` (dict) — The alert JSON to validate.
-- `raw_payload` (str, optional) — Raw string payload to check for JSON formatting issues.
 - `allow_placeholders` (bool) — Set to `False` to reject TradingView `{{...}}` placeholders and require explicit values.
 
 **Returns a dict with:**
 - `error` (bool) — `True` if validation failed.
-- `missing_fields` (list) — Fields that are required but absent.
 - `invalid_fields` (list) — Fields present but with invalid values.
 - `warnings` (list) — Non-blocking issues (e.g., broker ignoring unsupported parameters).
 - `description` (str) — Human-readable summary of what the alert will do.
 
-### Broker Capability Helpers
-
-```python
-from pickmytrade_validation import (
-    get_broker_capabilities,
-    broker_supports_trailing,
-    broker_supports_breakeven,
-    broker_supports_options,
-    get_allowed_inst_types
-)
-
-# Get full capability map for a broker
-caps = get_broker_capabilities("TRADOVATE")
-
-# Check individual capabilities
-broker_supports_trailing("RITHMIC")      # True
-broker_supports_breakeven("TRADOVATE")   # True
-get_allowed_inst_types("BINANCE")        # ["CRYPTO", "FUTURE", "FUTURES"]
-```
 
 ## FAQ
 
