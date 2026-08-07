@@ -98,7 +98,10 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
         if len(active_qty_risk) > 1:
             errors.append(f"{prefix}Only one of quantity or risk_percentage can be set. Please use any one.")
         elif len(active_qty_risk) == 0:
-            errors.append(f"{prefix}Either quantity or risk_percentage is required")
+            if prefix == "" and "multiple_accounts" in data:
+                errors.append("atleast one value required")
+            else:
+                errors.append(f"{prefix}Either quantity or risk_percentage is required")
 
     for field, expected_type in schema.items():
         if is_update:
@@ -120,7 +123,7 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
                 continue
             # Fall through to check type if present
 
-        elif field == "account_id" and 'account_id' in data and data['account_id'] == "":
+        elif field == "account_id" and 'account_id' in data and (data['account_id'] is None or str(data['account_id']).strip() == ""):
             errors.append(f"{prefix}account_id value is missing")
             continue
 
@@ -132,7 +135,7 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
             # Validate type of trail fields immediately if they exist in data
             if field in data:
                 val = data[field]
-                is_placeholder = allow_placeholders and isinstance(val, str) and "{{" in val and "}}" in val
+                is_placeholder = allow_placeholders and isinstance(val, str) and "{{" in val
                 if not is_placeholder:
                     if isinstance(val, str) or not isinstance(val, (int, float)) or isinstance(val, bool):
                         errors.append(f"{prefix}{field} supports numeric value only")
@@ -177,7 +180,7 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
             if field not in required_fields and field not in data:
                 continue
 
-        elif field in ('pyramid', 'gtd_in_second', 'risk_percentage', 'quantity_multiplier', 'tp', 'sl', 'dollar_tp', 'dollar_sl', 'percentage_tp', 'percentage_sl', 'advance_tp_sl', 'full_closed', 'comment') and field not in data:
+        elif field in ('pyramid', 'gtd_in_second', 'risk_percentage', 'quantity_multiplier', 'tp', 'sl', 'dollar_tp', 'dollar_sl', 'percentage_tp', 'percentage_sl', 'advance_tp_sl', 'full_closed', 'comment', 'multiple_accounts', 'account_id', 'duplicate_position_allow') and field not in data:
             continue
 
         if field not in data:
@@ -188,7 +191,7 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
 
         value = data[field]
         if allow_placeholders:
-            err = isinstance(value, str) and "{{" in value and "}}" in value
+            err = isinstance(value, str) and "{{" in value
             if not err:
                 if not check_type(value, expected_type):
                     et = 'numeric' if expected_type in ['int', 'float'] else expected_type
@@ -201,20 +204,64 @@ def validate_dict(data, schema, prefix="", broker=None, allow_placeholders=False
                 errors.append(f"{prefix}{field} supports {et} value only")
     breakeven_val = data.get("breakeven")
     breakeven_offset_val = data.get("breakeven_offset")
-    if is_active_value(breakeven_val) and is_active_value(breakeven_offset_val):
-        try:
-            be_float = float(breakeven_val)
-            be_offset_float = float(breakeven_offset_val)
-            if be_offset_float >= be_float:
-                errors.append(f"{prefix}breakeven_offset must be less than breakeven")
-        except (ValueError, TypeError):
-            pass
+    if is_active_value(breakeven_val):
+        if not any(is_active_value(data.get(f)) for f in ('dollar_tp', 'sl', 'percentage_sl', 'dollar_sl')):
+            errors.append(f"{prefix}Either dollar_tp, sl, or percentage_sl is required for breakeven")
+        if is_active_value(breakeven_offset_val):
+            try:
+                be_float = float(breakeven_val)
+                be_offset_float = float(breakeven_offset_val)
+                if be_offset_float >= be_float:
+                    errors.append(f"{prefix}breakeven_offset must be less than breakeven")
+            except (ValueError, TypeError):
+                pass
 
+    return errors
+
+
+def check_none_values(data, prefix=""):
+    errors = []
+    if isinstance(data, dict):
+        for k, v in data.items():
+            if v is None:
+                errors.append(f"{prefix}{k} value cannot be null")
+            elif isinstance(v, dict):
+                errors.extend(check_none_values(v, prefix=f"{prefix}{k}."))
+            elif isinstance(v, list):
+                for idx, item in enumerate(v):
+                    if item is None:
+                        errors.append(f"{prefix}{k}[{idx}] value cannot be null")
+                    else:
+                        errors.extend(check_none_values(item, prefix=f"{prefix}{k}[{idx}]."))
+    return errors
+
+
+def check_placeholders_when_disabled(data, prefix=""):
+    errors = []
+    if isinstance(data, dict):
+        for k, v in data.items():
+            if isinstance(v, str) and "{{" in v:
+                errors.append(f"{prefix}{k} wrong value found")
+            elif isinstance(v, dict):
+                errors.extend(check_placeholders_when_disabled(v, prefix=f"{prefix}{k}."))
+            elif isinstance(v, list):
+                for idx, item in enumerate(v):
+                    if isinstance(item, str) and "{{" in item:
+                        errors.append(f"{prefix}{k}[{idx}] wrong value found")
+                    else:
+                        errors.extend(check_placeholders_when_disabled(item, prefix=f"{prefix}{k}[{idx}]."))
     return errors
 
 
 def validate_payload(payload, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT_FIELDS, broker, allow_placeholders=False):
     errors = []
+    # Check for None / null values in any key
+    errors.extend(check_none_values(payload))
+    
+    # Check if placeholders exist when allow_placeholders is False
+    if not allow_placeholders:
+        errors.extend(check_placeholders_when_disabled(payload))
+    
     # Top-level validation
     errors.extend(validate_dict(payload, ALL_FIELDS, broker=broker, allow_placeholders=allow_placeholders))
     
@@ -292,34 +339,38 @@ def validate_payload(payload, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT
                 errors.append(f"{prefix}Either sl, percentage_sl, or dollar_sl is required")
                 
     # multiple_accounts validation
-    multiple_accounts = payload.get("multiple_accounts")
-    if not isinstance(multiple_accounts, list) or len(multiple_accounts) == 0:
-        errors.append("multiple_accounts must contain at least one account")
-    else:
-        for idx, item in enumerate(multiple_accounts):
-            prefix = f"multiple_accounts[{idx}]."
-            errors.extend(
-                validate_dict(
-                    item,
-                    MULTIPLE_ACCOUNT_FIELDS,
-                    prefix=prefix, allow_placeholders=allow_placeholders
+    if "multiple_accounts" in payload:
+        multiple_accounts = payload.get("multiple_accounts")
+        if not isinstance(multiple_accounts, list) or len(multiple_accounts) == 0:
+            errors.append("multiple_accounts must contain at least one account")
+        else:
+            for idx, item in enumerate(multiple_accounts):
+                prefix = f"multiple_accounts[{idx}]."
+                errors.extend(
+                    validate_dict(
+                        item,
+                        MULTIPLE_ACCOUNT_FIELDS,
+                        prefix=prefix, allow_placeholders=allow_placeholders
+                    )
                 )
-            )
-            # Custom validation for multiple_accounts data
-            token = item.get("token")
-            if token is None or str(token).strip() == "":
-                errors.append(f"{prefix}token value is empty")
-                
-            risk_pct = item.get("risk_percentage")
-            qty_mult = item.get("quantity_multiplier")
-            if not is_active_value(risk_pct) and not is_active_value(qty_mult):
-                errors.append(f"{prefix}Either risk_percentage or quantity_multiplier is required")
+                # Custom validation for multiple_accounts data
+                token = item.get("token")
+                if token is None or str(token).strip() == "":
+                    errors.append(f"{prefix}token value is empty")
+                    
+                risk_pct = item.get("risk_percentage")
+                qty_mult = item.get("quantity_multiplier")
+                if not is_active_value(risk_pct) and not is_active_value(qty_mult):
+                    errors.append(f"{prefix}Either risk_percentage or quantity_multiplier is required")
     return errors
 
 
 def checking_ins_type(payload, broker, allow_placeholders=False):
     errors = []
-    ins_type = (payload.get("ins_type") or payload.get("inst_type") or "").upper()
+    raw_ins_type = payload.get("ins_type") or payload.get("inst_type") or ""
+    if allow_placeholders and isinstance(raw_ins_type, str) and ("{?" in raw_ins_type or "{{" in raw_ins_type):
+        return []
+    ins_type = str(raw_ins_type).upper()
     
     # Normalize broker to Broker enum
     if isinstance(broker, str):
@@ -364,7 +415,10 @@ def checking_ins_type(payload, broker, allow_placeholders=False):
 
 def checking_data_type(payload, broker, allow_placeholders=False):
     errors = []
-    side_val = (payload.get("data") or "").upper()
+    raw_side = payload.get("data") or ""
+    if allow_placeholders and isinstance(raw_side, str) and "{{" in raw_side:
+        return []
+    side_val = str(raw_side).upper()
     valid_sides = [s.value for s in Side]
     if side_val not in valid_sides:
         errors.append(
@@ -375,9 +429,12 @@ def checking_data_type(payload, broker, allow_placeholders=False):
 
 def checking_order_type(payload, broker, allow_placeholders=False):
     errors = []
-    order_type = (payload.get("order_type") or "").upper()
-    if order_type == "":
+    raw_order_type = payload.get("order_type") or ""
+    if raw_order_type == "":
         return []
+    if allow_placeholders and isinstance(raw_order_type, str) and "{{" in raw_order_type:
+        return []
+    order_type = str(raw_order_type).upper()
     
     # Normalize broker to Broker enum
     if isinstance(broker, str):
@@ -406,6 +463,8 @@ def check_extra_keys(payload, ALL_FIELDS, ADVANCE_TP_SL_FIELDS, MULTIPLE_ACCOUNT
     # 1. Top-level keys check
     allowed_top_level = set(ALL_FIELDS.keys()) | {"broker"}
     for key in payload:
+        if key in ("created_first", "main_token_type", "reverse_action", "tif", "by_socket", "watch_user", "main_order_id"):
+            continue
         if key not in allowed_top_level:
             errors.append(f"Extra or invalid key found: '{key}'")
             
